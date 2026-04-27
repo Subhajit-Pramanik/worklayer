@@ -2,53 +2,20 @@ package tenant
 
 import (
 	"github.com/gofiber/fiber/v2"
-	"github.com/vyolayer/vyolayer/internal/gateway/middleware"
-	dto "github.com/vyolayer/vyolayer/internal/shared/dto/tenant"
 	"github.com/vyolayer/vyolayer/pkg/errors"
-	"github.com/vyolayer/vyolayer/pkg/jwt"
-	"github.com/vyolayer/vyolayer/pkg/logger"
 	"github.com/vyolayer/vyolayer/pkg/response"
 	tenantV1 "github.com/vyolayer/vyolayer/proto/tenant/v1"
 )
 
-type OrganizationMemberHandler struct {
-	logger *logger.AppLogger
-	client tenantV1.OrganizationMemberServiceClient
-	iamJWT jwt.IamJWT
-}
-
-func NewOrganizationMemberHandler(
-	logger *logger.AppLogger,
-	client tenantV1.OrganizationMemberServiceClient,
-	iamJWT jwt.IamJWT,
-) *OrganizationMemberHandler {
-	return &OrganizationMemberHandler{
-		logger: logger.WithContext("Org Member Handler"),
-		client: client,
-		iamJWT: iamJWT,
-	}
-}
-
-func (h *OrganizationMemberHandler) RegisterRoutes(router fiber.Router) {
-	grpcCtxMiddleware := middleware.NewGrpcCtxMiddleware(tenantGRPCTimeout).Handler()
-
-	orgMemberGroup := router.Group("/organizations/:organizationID/members")
-	orgMemberGroup.Use(
-		grpcCtxMiddleware,
-		middleware.IamJWTVerify(h.iamJWT),
-		middleware.ValidateOrganizationID(),
-	)
-
-	// Members
-	orgMemberGroup.
-		Get("/", h.listMembers).
-		Get("/me", h.getCurrentMember).
-		Get("/:memberID", h.getMemberByID).
-		Delete("/:memberID", h.removeMember)
-
-	h.logger.Info("Organization member routes registered", "")
-}
-
+// @Summary Get Current Organization Member
+// @Description Get details of the currently authenticated member
+// @Tags Organization Members
+// @Accept json
+// @Produce json
+// @Security BearerAuth
+// @Param organizationID path string true "Organization ID"
+// @Success 200 {object} response.SuccessResponse{data=OrganizationMemberWithRBACResponse}
+// @Router /organizations/{organizationID}/members/me [get]
 func (h *OrganizationMemberHandler) getCurrentMember(c *fiber.Ctx) error {
 	resp, err := h.client.GetCurrentMember(
 		c.UserContext(),
@@ -73,7 +40,7 @@ func (h *OrganizationMemberHandler) getCurrentMember(c *fiber.Ctx) error {
 		rolesDto[i] = r.GetName()
 	}
 
-	memberDto := &dto.OrganizationMemberWithRBACResponse{
+	memberDto := &OrganizationMemberWithRBACResponse{
 		OrganizationMember: *protoMemberToDTO(member),
 		Roles:              rolesDto,
 		Perms:              permsDto,
@@ -87,6 +54,15 @@ func (h *OrganizationMemberHandler) getCurrentMember(c *fiber.Ctx) error {
 	)
 }
 
+// @Summary List Organization Members
+// @Description List all members in the organization
+// @Tags Organization Members
+// @Accept json
+// @Produce json
+// @Security BearerAuth
+// @Param organizationID path string true "Organization ID"
+// @Success 200 {object} response.SuccessResponse{data=ListOrganizationMembersResponse}
+// @Router /organizations/{organizationID}/members [get]
 func (h *OrganizationMemberHandler) listMembers(c *fiber.Ctx) error {
 	req := tenantV1.TenantOrganizationIDRequest{
 		OrganizationId: getOrgIDFromLocals(c),
@@ -97,7 +73,7 @@ func (h *OrganizationMemberHandler) listMembers(c *fiber.Ctx) error {
 		return response.Error(c, errors.FromGRPC(err))
 	}
 
-	membersDto := make([]*dto.OrganizationMember, len(resp.GetMembers()))
+	membersDto := make([]*OrganizationMember, len(resp.GetMembers()))
 	for i, m := range resp.GetMembers() {
 		membersDto[i] = protoMemberToDTO(m)
 	}
@@ -106,17 +82,27 @@ func (h *OrganizationMemberHandler) listMembers(c *fiber.Ctx) error {
 		c,
 		fiber.StatusOK,
 		"members fetched successfully",
-		&dto.ListOrganizationMembersResponse{
+		&ListOrganizationMembersResponse{
 			Members:    membersDto,
 			TotalCount: resp.GetTotalCount(),
 		},
 	)
 }
 
+// @Summary Get Organization Member
+// @Description Get details of a specific organization member
+// @Tags Organization Members
+// @Accept json
+// @Produce json
+// @Security BearerAuth
+// @Param organizationID path string true "Organization ID"
+// @Param memberID path string true "Member ID"
+// @Success 200 {object} response.SuccessResponse{data=OrganizationMember}
+// @Router /organizations/{organizationID}/members/{memberID} [get]
 func (h *OrganizationMemberHandler) getMemberByID(c *fiber.Ctx) error {
 	req := tenantV1.GetOrganizationMemberByIdRequest{
 		OrganizationId: getOrgIDFromLocals(c),
-		MemberId:       c.Params("memberID"),
+		MemberId:       c.Params(ParamMemberID),
 	}
 
 	resp, err := h.client.GetMemberById(c.UserContext(), &req)
@@ -139,10 +125,20 @@ func (h *OrganizationMemberHandler) getMemberByID(c *fiber.Ctx) error {
 	)
 }
 
+// @Summary Remove Organization Member
+// @Description Remove a member from the organization
+// @Tags Organization Members
+// @Accept json
+// @Produce json
+// @Security BearerAuth
+// @Param organizationID path string true "Organization ID"
+// @Param memberID path string true "Member ID"
+// @Success 200 {object} response.SuccessResponse
+// @Router /organizations/{organizationID}/members/{memberID} [delete]
 func (h *OrganizationMemberHandler) removeMember(c *fiber.Ctx) error {
 	req := tenantV1.RemoveOrganizationMemberRequest{
 		OrganizationId: getOrgIDFromLocals(c),
-		MemberId:       c.Params("memberID"),
+		MemberId:       c.Params(ParamMemberID),
 	}
 
 	resp, err := h.client.RemoveMember(c.UserContext(), &req)

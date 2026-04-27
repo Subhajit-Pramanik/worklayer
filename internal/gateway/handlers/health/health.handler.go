@@ -19,6 +19,13 @@ func (h *HealthHandler) RegisterRoutes(router fiber.Router) {
 	log.Println("[HEALTH] routes registered")
 }
 
+// @Summary Check API Health
+// @Description Returns the health status of the API Gateway
+// @Tags Health
+// @Accept json
+// @Produce json
+// @Success 200 {object} response.SuccessResponse{data=object{status=string,version=string}}
+// @Router /health [get]
 func (h *HealthHandler) health(c *fiber.Ctx) error {
 	res := fiber.Map{
 		"status":  "ok",

@@ -1,83 +1,29 @@
-package handlers
+package account
 
 import (
-	"context"
 	"log"
-	"time"
 
 	"github.com/gofiber/fiber/v2"
-	"github.com/vyolayer/vyolayer/internal/gateway/service"
-	"github.com/vyolayer/vyolayer/internal/shared/middleware"
 	"github.com/vyolayer/vyolayer/pkg/errors"
-	"github.com/vyolayer/vyolayer/pkg/jwt"
-	"github.com/vyolayer/vyolayer/pkg/logger"
 	"github.com/vyolayer/vyolayer/pkg/response"
 	accountV1 "github.com/vyolayer/vyolayer/proto/account/v1"
 )
 
-// AccountHandler manages HTTP requests related to accounts
-type AccountHandler struct {
-	client     accountV1.AccountServiceClient
-	cookieSv   *service.AccountTokenService
-	accountJWT jwt.AccountJWT
-	logger     *logger.AppLogger
-}
-
-// NewAccountHandler creates a new AccountHandler injecting the gRPC client
-func NewAccountHandler(
-	client accountV1.AccountServiceClient,
-	cookieSv *service.AccountTokenService,
-	accountJWT jwt.AccountJWT,
-	logger *logger.AppLogger,
-) *AccountHandler {
-	return &AccountHandler{
-		client:     client,
-		cookieSv:   cookieSv,
-		accountJWT: accountJWT,
-		logger:     logger.WithContext("AccountHandler"),
-	}
-}
-
-// RegisterRoutes registers the account routes on the provided router
-func (h *AccountHandler) RegisterRoutes(router fiber.Router) {
-	r := router.Group("/account")
-
-	r.Post("/sign-up", h.register)
-	r.Post("/verify-email", h.verifyEmail)
-	r.Post("/resend-verification-email", h.resendVerificationEmail)
-	r.Post("/sign-in", h.login)
-
-	r.Post("/sessions/refresh", h.refreshToken)
-
-	r.Post("/forgot-password", h.forgotPassword)
-	r.Post("/reset-password", h.resetPassword)
-
-	ra := r.Group("/")
-	ra.Use(middleware.AccountJWTVerify(h.accountJWT))
-
-	ra.Post("/sign-out", h.logout)
-	ra.Post("/validate", h.validateSession)
-
-	ra.Get("/sessions", h.listSessions)
-	ra.Post("/sessions/revoke", h.revokeSession)
-	ra.Post("/sessions/revoke-all", h.revokeAllSessions)
-
-	ra.Post("change-password", h.changePassword)
-
-	h.logger.Info("Account routes registered", "")
-}
-
-// register handles user registration
+// @Summary Register User
+// @Description Register a new user account
+// @Tags Account
+// @Accept json
+// @Produce json
+// @Param request body RegisterRequestDTO true "Registration details"
+// @Success 201 {object} response.SuccessResponse{data=RegisterResponseDTO}
+// @Router /account/sign-up [post]
 func (h *AccountHandler) register(c *fiber.Ctx) error {
-	ctx, cancel := context.WithTimeout(c.UserContext(), 10*time.Second)
-	defer cancel()
-
 	var req accountV1.RegisterRequest
 	if e := c.BodyParser(&req); e != nil {
 		return response.Error(c, errors.BadRequest("Invalid Request Body"))
 	}
 
-	resp, e := h.client.Register(ctx, &req)
+	resp, e := h.client.Register(c.UserContext(), &req)
 	if e != nil {
 		appErr := errors.FromGRPC(e)
 		return response.Error(c, appErr)
@@ -91,16 +37,21 @@ func (h *AccountHandler) register(c *fiber.Ctx) error {
 	)
 }
 
+// @Summary Verify Email
+// @Description Verify a user's email with a token
+// @Tags Account
+// @Accept json
+// @Produce json
+// @Param token query string true "Verification token"
+// @Success 200 {object} response.SuccessResponse
+// @Router /account/verify-email [post]
 func (h *AccountHandler) verifyEmail(c *fiber.Ctx) error {
-	ctx, cancel := context.WithTimeout(c.UserContext(), 10*time.Second)
-	defer cancel()
-
-	token := c.Query("token")
+	token := c.Query(QueryParamToken)
 	if token == "" {
 		return response.Error(c, errors.BadRequest("Token is required"))
 	}
 
-	_, e := h.client.VerifyEmail(ctx, &accountV1.VerifyEmailRequest{
+	_, e := h.client.VerifyEmail(c.UserContext(), &accountV1.VerifyEmailRequest{
 		Token: token,
 	})
 	if e != nil {
@@ -114,16 +65,21 @@ func (h *AccountHandler) verifyEmail(c *fiber.Ctx) error {
 	)
 }
 
+// @Summary Resend Verification Email
+// @Description Resend the email verification link
+// @Tags Account
+// @Accept json
+// @Produce json
+// @Param request body ResendVerificationEmailRequestDTO true "Email details"
+// @Success 200 {object} response.SuccessResponse
+// @Router /account/resend-verification-email [post]
 func (h *AccountHandler) resendVerificationEmail(c *fiber.Ctx) error {
-	ctx, cancel := context.WithTimeout(c.UserContext(), 10*time.Second)
-	defer cancel()
-
 	var req accountV1.ResendVerificationEmailRequest
 	if e := c.BodyParser(&req); e != nil {
 		return response.Error(c, errors.BadRequest("Invalid Request Body"))
 	}
 
-	_, e := h.client.ResendVerificationEmail(ctx, &req)
+	_, e := h.client.ResendVerificationEmail(c.UserContext(), &req)
 	if e != nil {
 		return response.Error(c, errors.FromGRPC(e))
 	}
@@ -134,16 +90,21 @@ func (h *AccountHandler) resendVerificationEmail(c *fiber.Ctx) error {
 	)
 }
 
+// @Summary User Login
+// @Description Authenticate user and return session tokens
+// @Tags Account
+// @Accept json
+// @Produce json
+// @Param request body LoginRequestDTO true "Login credentials"
+// @Success 200 {object} response.SuccessResponse{data=LoginResponseDTO}
+// @Router /account/sign-in [post]
 func (h *AccountHandler) login(c *fiber.Ctx) error {
-	ctx, cancel := context.WithTimeout(c.UserContext(), 10*time.Second)
-	defer cancel()
-
 	var req accountV1.LoginRequest
 	if e := c.BodyParser(&req); e != nil {
 		return response.Error(c, errors.BadRequest("Invalid Request Body"))
 	}
 
-	resp, e := h.client.Login(ctx, &req)
+	resp, e := h.client.Login(c.UserContext(), &req)
 	if e != nil {
 		return response.Error(c, errors.FromGRPC(e))
 	}
@@ -160,16 +121,21 @@ func (h *AccountHandler) login(c *fiber.Ctx) error {
 	)
 }
 
+// @Summary User Logout
+// @Description Logout user and clear session cookies
+// @Tags Account
+// @Accept json
+// @Produce json
+// @Security BearerAuth
+// @Success 200 {object} response.SuccessResponse
+// @Router /account/sign-out [post]
 func (h *AccountHandler) logout(c *fiber.Ctx) error {
-	ctx, cancel := context.WithTimeout(c.UserContext(), 10*time.Second)
-	defer cancel()
-
 	t, err := h.cookieSv.GetRefreshToken(c)
 	if err != nil {
 		return response.Error(c, errors.BadRequest("Refresh token not found"))
 	}
 
-	_, e := h.client.Logout(ctx, &accountV1.LogoutRequest{
+	_, e := h.client.Logout(c.UserContext(), &accountV1.LogoutRequest{
 		RefreshToken: t,
 	})
 
@@ -188,6 +154,14 @@ func (h *AccountHandler) logout(c *fiber.Ctx) error {
 	)
 }
 
+// @Summary Validate Session
+// @Description Validate the current access token session
+// @Tags Account
+// @Accept json
+// @Produce json
+// @Security BearerAuth
+// @Success 200 {object} response.SuccessResponse
+// @Router /account/validate [post]
 func (h *AccountHandler) validateSession(c *fiber.Ctx) error {
 	// Extract the access token from the cookies
 	accessToken := h.cookieSv.GetAccessToken(c)
@@ -210,10 +184,14 @@ func (h *AccountHandler) validateSession(c *fiber.Ctx) error {
 	)
 }
 
+// @Summary Refresh Token
+// @Description Refresh the access token using the refresh token cookie
+// @Tags Account
+// @Accept json
+// @Produce json
+// @Success 200 {object} response.SuccessResponse{data=RefreshSessionResponseDTO}
+// @Router /account/sessions/refresh [post]
 func (h *AccountHandler) refreshToken(c *fiber.Ctx) error {
-	ctx, cancel := context.WithTimeout(c.UserContext(), 10*time.Second)
-	defer cancel()
-
 	t, err := h.cookieSv.GetRefreshToken(c)
 	if err != nil || t == "" {
 		return response.Error(c, errors.TokenInvalid("Not found"))
@@ -221,7 +199,7 @@ func (h *AccountHandler) refreshToken(c *fiber.Ctx) error {
 
 	log.Println("Refreshing session")
 	resp, e := h.client.RefreshSession(
-		ctx,
+		c.UserContext(),
 		&accountV1.RefreshSessionRequest{RefreshToken: t},
 	)
 	if e != nil {
@@ -245,10 +223,15 @@ func (h *AccountHandler) refreshToken(c *fiber.Ctx) error {
 	)
 }
 
+// @Summary List Sessions
+// @Description List all active sessions for the authenticated user
+// @Tags Account
+// @Accept json
+// @Produce json
+// @Security BearerAuth
+// @Success 200 {object} response.SuccessResponse{data=AllSessionsResponseDTO}
+// @Router /account/sessions [get]
 func (h *AccountHandler) listSessions(c *fiber.Ctx) error {
-	ctx, cancel := context.WithTimeout(c.UserContext(), 10*time.Second)
-	defer cancel()
-
 	rt, err := h.cookieSv.GetRefreshToken(c)
 	if err != nil || rt == "" {
 		return response.Error(c, errors.TokenInvalid("Not found"))
@@ -256,7 +239,7 @@ func (h *AccountHandler) listSessions(c *fiber.Ctx) error {
 
 	req := &accountV1.AllSessionsRequest{RefreshToken: rt}
 
-	resp, e := h.client.AllSessions(ctx, req)
+	resp, e := h.client.AllSessions(c.UserContext(), req)
 	if e != nil {
 		return response.Error(c, errors.FromGRPC(e))
 	}
@@ -269,12 +252,18 @@ func (h *AccountHandler) listSessions(c *fiber.Ctx) error {
 	)
 }
 
+// @Summary Revoke Session
+// @Description Revoke a specific session
+// @Tags Account
+// @Accept json
+// @Produce json
+// @Security BearerAuth
+// @Param session_id query string true "Session ID"
+// @Success 200 {object} response.SuccessResponse
+// @Router /account/sessions/revoke [post]
 func (h *AccountHandler) revokeSession(c *fiber.Ctx) error {
-	ctx, cancel := context.WithTimeout(c.UserContext(), 10*time.Second)
-	defer cancel()
-
 	// Session id from params
-	sessionID := c.Query("session_id")
+	sessionID := c.Query(QueryParamSessionId)
 	if sessionID == "" {
 		return response.Error(c, errors.BadRequest("Session id is required"))
 	}
@@ -284,7 +273,7 @@ func (h *AccountHandler) revokeSession(c *fiber.Ctx) error {
 		return response.Error(c, errors.BadRequest("Refresh token not found"))
 	}
 
-	_, e := h.client.RevokeSession(ctx, &accountV1.RevokeSessionRequest{
+	_, e := h.client.RevokeSession(c.UserContext(), &accountV1.RevokeSessionRequest{
 		RefreshToken: refreshToken,
 		SessionId:    sessionID,
 	})
@@ -302,16 +291,21 @@ func (h *AccountHandler) revokeSession(c *fiber.Ctx) error {
 	)
 }
 
+// @Summary Revoke All Sessions
+// @Description Revoke all sessions for the authenticated user
+// @Tags Account
+// @Accept json
+// @Produce json
+// @Security BearerAuth
+// @Success 200 {object} response.SuccessResponse
+// @Router /account/sessions/revoke-all [post]
 func (h *AccountHandler) revokeAllSessions(c *fiber.Ctx) error {
-	ctx, cancel := context.WithTimeout(c.UserContext(), 10*time.Second)
-	defer cancel()
-
 	refreshToken, err := h.cookieSv.GetRefreshToken(c)
 	if err != nil || refreshToken == "" {
 		return response.Error(c, errors.BadRequest("Refresh token not found"))
 	}
 
-	_, e := h.client.RevokeAllSessions(ctx, &accountV1.RevokeAllSessionsRequest{
+	_, e := h.client.RevokeAllSessions(c.UserContext(), &accountV1.RevokeAllSessionsRequest{
 		RefreshToken: refreshToken,
 	})
 	if e != nil {
@@ -329,16 +323,23 @@ func (h *AccountHandler) revokeAllSessions(c *fiber.Ctx) error {
 }
 
 // Account recover - Change Password, Forgot Password, Reset Password
-func (h *AccountHandler) changePassword(c *fiber.Ctx) error {
-	ctx, cancel := context.WithTimeout(c.UserContext(), 10*time.Second)
-	defer cancel()
 
+// @Summary Change Password
+// @Description Change the user's password
+// @Tags Account
+// @Accept json
+// @Produce json
+// @Security BearerAuth
+// @Param request body ChangePasswordRequestDTO true "Change Password details"
+// @Success 200 {object} response.SuccessResponse
+// @Router /account/change-password [post]
+func (h *AccountHandler) changePassword(c *fiber.Ctx) error {
 	var req accountV1.ChangePasswordRequest
 	if e := c.BodyParser(&req); e != nil {
 		return response.Error(c, errors.BadRequest("Invalid Request Body"))
 	}
 
-	_, err := h.client.ChangePassword(ctx, &req)
+	_, err := h.client.ChangePassword(c.UserContext(), &req)
 	if err != nil {
 		return response.Error(c, errors.FromGRPC(err))
 	}
@@ -352,19 +353,23 @@ func (h *AccountHandler) changePassword(c *fiber.Ctx) error {
 		"Password changed successfully",
 		nil,
 	)
-
 }
 
+// @Summary Forgot Password
+// @Description Send a password reset email
+// @Tags Account
+// @Accept json
+// @Produce json
+// @Param request body ForgotPasswordRequestDTO true "Forgot Password details"
+// @Success 200 {object} response.SuccessResponse
+// @Router /account/forgot-password [post]
 func (h *AccountHandler) forgotPassword(c *fiber.Ctx) error {
-	ctx, cancel := context.WithTimeout(c.UserContext(), 10*time.Second)
-	defer cancel()
-
 	var req accountV1.ForgotPasswordRequest
 	if e := c.BodyParser(&req); e != nil {
 		return response.Error(c, errors.BadRequest("Invalid Request Body"))
 	}
 
-	_, err := h.client.ForgotPassword(ctx, &req)
+	_, err := h.client.ForgotPassword(c.UserContext(), &req)
 	if err != nil {
 		return response.Error(c, errors.FromGRPC(err))
 	}
@@ -377,11 +382,17 @@ func (h *AccountHandler) forgotPassword(c *fiber.Ctx) error {
 	)
 }
 
+// @Summary Reset Password
+// @Description Reset the user's password using a token
+// @Tags Account
+// @Accept json
+// @Produce json
+// @Param token query string true "Reset token"
+// @Param request body ResetPasswordRequestDTO true "Reset Password details"
+// @Success 200 {object} response.SuccessResponse
+// @Router /account/reset-password [post]
 func (h *AccountHandler) resetPassword(c *fiber.Ctx) error {
-	ctx, cancel := context.WithTimeout(c.UserContext(), 10*time.Second)
-	defer cancel()
-
-	token := c.Query("token")
+	token := c.Query(QueryParamToken)
 	if token == "" {
 		return response.Error(c, errors.BadRequest("Token is required"))
 	}
@@ -392,7 +403,7 @@ func (h *AccountHandler) resetPassword(c *fiber.Ctx) error {
 	}
 	req.Token = token
 
-	_, err := h.client.ResetPassword(ctx, &req)
+	_, err := h.client.ResetPassword(c.UserContext(), &req)
 	if err != nil {
 		return response.Error(c, errors.FromGRPC(err))
 	}

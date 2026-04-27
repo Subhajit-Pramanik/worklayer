@@ -1,57 +1,22 @@
 package console
 
 import (
-	"time"
-
 	"github.com/gofiber/fiber/v2"
-	"github.com/vyolayer/vyolayer/internal/gateway/middleware"
+	consoledto "github.com/vyolayer/vyolayer/internal/shared/dto/console"
 	"github.com/vyolayer/vyolayer/pkg/errors"
-	"github.com/vyolayer/vyolayer/pkg/jwt"
-	"github.com/vyolayer/vyolayer/pkg/logger"
 	"github.com/vyolayer/vyolayer/pkg/response"
 	consolev1 "github.com/vyolayer/vyolayer/proto/console/v1"
-
-	dto "github.com/vyolayer/vyolayer/internal/shared/dto/console"
 )
 
-const (
-	grpcTimeout = 10 * time.Second
-)
-
-type ProjectServiceHandler struct {
-	logger *logger.AppLogger
-	client consolev1.ProjectServiceManifestClient
-	iamJWT jwt.IamJWT
-}
-
-func NewProjectServiceHandler(
-	logger *logger.AppLogger,
-	client consolev1.ProjectServiceManifestClient,
-	iamJWT jwt.IamJWT,
-) *ProjectServiceHandler {
-	return &ProjectServiceHandler{
-		logger: logger.WithContext("ConsoleProjectServiceHandler"),
-		client: client,
-		iamJWT: iamJWT,
-	}
-}
-
-func (h *ProjectServiceHandler) RegisterRoutes(router fiber.Router) {
-	// grpc ctx timeout
-	grpcCtxMiddleware := middleware.NewGrpcCtxMiddleware(grpcTimeout)
-
-	// /console/projects/:projectID/services
-	services := router.Group("/console/projects/:projectID/services")
-	services.Use(grpcCtxMiddleware.Handler())
-	services.Use(middleware.IamJWTVerify(h.iamJWT))
-	services.Use(middleware.ValidateProjectID())
-
-	services.Get("/", h.list)
-	services.Get("/:serviceKey", h.get)
-
-	h.logger.Info("ProjectService routes registered", "")
-}
-
+// @Summary List Project Services
+// @Description List all services in a project
+// @Tags Project Services
+// @Accept json
+// @Produce json
+// @Security BearerAuth
+// @Param projectID path string true "Project ID"
+// @Success 200 {object} response.SuccessResponse{data=[]consoledto.ServiceManifestDTO}
+// @Router /console/projects/{projectID}/services [get]
 func (h *ProjectServiceHandler) list(c *fiber.Ctx) error {
 	req := &consolev1.ListProjectServicesRequest{
 		ProjectId: getProjectIDFromLocals(c),
@@ -62,9 +27,9 @@ func (h *ProjectServiceHandler) list(c *fiber.Ctx) error {
 		return response.Error(c, errors.FromGRPC(err))
 	}
 
-	servicesDTO := make([]dto.ServiceManifestDTO, len(resp.GetData()))
+	servicesDTO := make([]consoledto.ServiceManifestDTO, len(resp.GetData()))
 	for i, service := range resp.GetData() {
-		servicesDTO[i] = dto.ServiceManifestDTO{
+		servicesDTO[i] = consoledto.ServiceManifestDTO{
 			Key:         service.GetKey(),
 			Name:        service.GetName(),
 			Status:      service.GetStatus(),
@@ -77,10 +42,20 @@ func (h *ProjectServiceHandler) list(c *fiber.Ctx) error {
 	return response.Success(c, servicesDTO)
 }
 
+// @Summary Get Project Service
+// @Description Get details of a project service by its key
+// @Tags Project Services
+// @Accept json
+// @Produce json
+// @Security BearerAuth
+// @Param projectID path string true "Project ID"
+// @Param serviceKey path string true "Service Key"
+// @Success 200 {object} response.SuccessResponse{data=consoledto.ServiceManifestWithResourcesDTO}
+// @Router /console/projects/{projectID}/services/{serviceKey} [get]
 func (h *ProjectServiceHandler) get(c *fiber.Ctx) error {
 	req := &consolev1.GetProjectServiceManifestRequest{
 		ProjectId:  getProjectIDFromLocals(c),
-		ServiceKey: c.Params("serviceKey"),
+		ServiceKey: c.Params(ParamServiceKey),
 	}
 
 	grpcResp, err := h.client.GetProjectServiceManifest(c.UserContext(), req)
@@ -93,11 +68,11 @@ func (h *ProjectServiceHandler) get(c *fiber.Ctx) error {
 		return response.Error(c, errors.NotFound("service not found"))
 	}
 
-	var resourcesDTO []dto.ResourceDTO
+	var resourcesDTO []consoledto.ResourceDTO
 	for _, res := range grpcData.GetResources() {
-		var columnsDTO []dto.ColumnDTO
+		var columnsDTO []consoledto.ColumnDTO
 		for _, col := range res.GetColumns() {
-			columnsDTO = append(columnsDTO, dto.ColumnDTO{
+			columnsDTO = append(columnsDTO, consoledto.ColumnDTO{
 				Key:      col.GetKey(),
 				Label:    col.GetLabel(),
 				Type:     col.GetType(),
@@ -106,9 +81,9 @@ func (h *ProjectServiceHandler) get(c *fiber.Ctx) error {
 			})
 		}
 
-		var actionsDTO []dto.ActionDTO
+		var actionsDTO []consoledto.ActionDTO
 		for _, act := range res.GetActions() {
-			actionsDTO = append(actionsDTO, dto.ActionDTO{
+			actionsDTO = append(actionsDTO, consoledto.ActionDTO{
 				Key:     act.GetKey(),
 				Label:   act.GetLabel(),
 				Scope:   act.GetScope(),
@@ -117,16 +92,16 @@ func (h *ProjectServiceHandler) get(c *fiber.Ctx) error {
 			})
 		}
 
-		var filtersDTO []dto.FilterDTO
+		var filtersDTO []consoledto.FilterDTO
 		for _, fil := range res.GetFilters() {
-			filtersDTO = append(filtersDTO, dto.FilterDTO{
+			filtersDTO = append(filtersDTO, consoledto.FilterDTO{
 				Key:   fil.GetKey(),
 				Label: fil.GetLabel(),
 				Type:  fil.GetType(),
 			})
 		}
 
-		resourcesDTO = append(resourcesDTO, dto.ResourceDTO{
+		resourcesDTO = append(resourcesDTO, consoledto.ResourceDTO{
 			Key:     res.GetKey(),
 			Label:   res.GetLabel(),
 			Route:   res.GetRoute(),
@@ -137,8 +112,8 @@ func (h *ProjectServiceHandler) get(c *fiber.Ctx) error {
 		})
 	}
 
-	serviceManifestDTO := &dto.ServiceManifestWithResourcesDTO{
-		ServiceManifestDTO: dto.ServiceManifestDTO{
+	serviceManifestDTO := &consoledto.ServiceManifestWithResourcesDTO{
+		ServiceManifestDTO: consoledto.ServiceManifestDTO{
 			Key:         grpcData.GetKey(),
 			Name:        grpcData.GetName(),
 			Description: grpcData.GetDescription(),

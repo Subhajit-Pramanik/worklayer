@@ -1,81 +1,23 @@
 package tenant
 
 import (
-	"time"
-
 	"github.com/gofiber/fiber/v2"
-	"github.com/vyolayer/vyolayer/internal/gateway/middleware"
-	dto "github.com/vyolayer/vyolayer/internal/shared/dto/tenant"
 	"github.com/vyolayer/vyolayer/pkg/errors"
-	"github.com/vyolayer/vyolayer/pkg/jwt"
-	"github.com/vyolayer/vyolayer/pkg/logger"
 	"github.com/vyolayer/vyolayer/pkg/response"
 	tenantV1 "github.com/vyolayer/vyolayer/proto/tenant/v1"
 )
 
-const (
-	tenantGRPCTimeout = 10 * time.Second
-)
-
-var (
-	ErrInvalidBody  = errors.BadRequest("invalid request body")
-	ErrInvalidOrgID = errors.BadRequest("invalid organization id")
-	ErrInvalidSlug  = errors.BadRequest("invalid slug")
-)
-
-type OrganizationHandler struct {
-	logger *logger.AppLogger
-	client tenantV1.OrganizationServiceClient
-	iamJWT jwt.IamJWT
-}
-
-func NewOrganizationHandler(
-	logger *logger.AppLogger,
-	client tenantV1.OrganizationServiceClient,
-	iamJWT jwt.IamJWT,
-) *OrganizationHandler {
-	return &OrganizationHandler{
-		logger: logger.WithContext("Org Handler"),
-		client: client,
-		iamJWT: iamJWT,
-	}
-}
-
-func (h *OrganizationHandler) RegisterRoutes(router fiber.Router) {
-	grpcCtxMiddleware := middleware.NewGrpcCtxMiddleware(tenantGRPCTimeout).Handler()
-
-	org := router.Group("/organizations")
-	org.Use(grpcCtxMiddleware)
-	org.Use(middleware.IamJWTVerify(h.iamJWT))
-
-	org.
-		Post("/onboarding", h.onboarding).
-		Post("/", h.create).
-		Get("/", h.list)
-
-	org.Get("slug/:slug", h.getBySlug)
-
-	// All routes below require a valid organizationID in the path
-	orgGroup := org.Group("/:organizationID", middleware.ValidateOrganizationID())
-
-	// Organization lifecycle
-	orgGroup.
-		Get("/", h.getById).
-		Patch("/", h.update).
-		Delete("/", h.delete).
-		Delete("/archive", h.archive).
-		Post("/restore", h.restore).
-		Post("/transfer-ownership", h.transferOwnership)
-
-	// Roles and permissions
-	orgGroup.Get("/roles", h.listRoles).
-		Get("/permissions", h.listPermissions)
-
-	h.logger.Info("Organization routes registered", "")
-}
-
 // ─── Organization ────────────────────────────────────────────────────────────
 
+// @Summary Create Organization
+// @Description Create a new organization
+// @Tags Organizations
+// @Accept json
+// @Produce json
+// @Security BearerAuth
+// @Param request body tenantV1.CreateOrganizationRequest true "Organization details"
+// @Success 201 {object} response.SuccessResponse{data=CreateOrganizationResponse}
+// @Router /organizations [post]
 func (h *OrganizationHandler) create(c *fiber.Ctx) error {
 	var req tenantV1.CreateOrganizationRequest
 	if err := c.BodyParser(&req); err != nil {
@@ -93,13 +35,22 @@ func (h *OrganizationHandler) create(c *fiber.Ctx) error {
 		c,
 		fiber.StatusCreated,
 		"organization created successfully",
-		&dto.CreateOrganizationResponse{
+		&CreateOrganizationResponse{
 			Name:        req.GetName(),
 			Description: req.GetDescription(),
 		},
 	)
 }
 
+// @Summary Onboard Organization
+// @Description Onboard a new organization (for new users)
+// @Tags Organizations
+// @Accept json
+// @Produce json
+// @Security BearerAuth
+// @Param request body tenantV1.CreateOrganizationRequest true "Organization details"
+// @Success 201 {object} response.SuccessResponse{data=OnboardOrganizationResponse}
+// @Router /organizations/onboarding [post]
 // onboarding is called only when the user is not yet a member of any org.
 func (h *OrganizationHandler) onboarding(c *fiber.Ctx) error {
 	var req tenantV1.CreateOrganizationRequest
@@ -120,13 +71,22 @@ func (h *OrganizationHandler) onboarding(c *fiber.Ctx) error {
 		c,
 		fiber.StatusCreated,
 		"organization onboarded successfully",
-		&dto.OnboardOrganizationResponse{
+		&OnboardOrganizationResponse{
 			Organization: dtoResp.Organization,
 			Members:      dtoResp.Members,
 		},
 	)
 }
 
+// @Summary Get Organization by ID
+// @Description Get organization details by ID
+// @Tags Organizations
+// @Accept json
+// @Produce json
+// @Security BearerAuth
+// @Param organizationID path string true "Organization ID"
+// @Success 200 {object} response.SuccessResponse{data=Organization}
+// @Router /organizations/{organizationID} [get]
 func (h *OrganizationHandler) getById(c *fiber.Ctx) error {
 	req := tenantV1.TenantOrganizationIDRequest{
 		OrganizationId: getOrgIDFromLocals(c),
@@ -148,13 +108,22 @@ func (h *OrganizationHandler) getById(c *fiber.Ctx) error {
 	)
 }
 
+// @Summary Get Organization by Slug
+// @Description Get organization details by its unique slug
+// @Tags Organizations
+// @Accept json
+// @Produce json
+// @Security BearerAuth
+// @Param slug path string true "Organization Slug"
+// @Success 200 {object} response.SuccessResponse{data=Organization}
+// @Router /organizations/slug/{slug} [get]
 func (h *OrganizationHandler) getBySlug(c *fiber.Ctx) error {
 	var (
 		slug string
 		in   tenantV1.OrganizationSlugRequest
 	)
 
-	slug = c.Params("slug")
+	slug = c.Params(ParamSlug)
 	if slug == "" {
 		return response.Error(c, ErrInvalidSlug)
 	}
@@ -176,10 +145,20 @@ func (h *OrganizationHandler) getBySlug(c *fiber.Ctx) error {
 	)
 }
 
+// @Summary List Organizations
+// @Description List organizations the user belongs to
+// @Tags Organizations
+// @Accept json
+// @Produce json
+// @Security BearerAuth
+// @Param page_size query int false "Page size"
+// @Param page_token query string false "Page token"
+// @Success 200 {object} response.SuccessResponse{data=ListOrganizationsResponse}
+// @Router /organizations [get]
 func (h *OrganizationHandler) list(c *fiber.Ctx) error {
 	req := tenantV1.ListOrganizationsRequest{
-		PageSize:  int32(c.QueryInt("page_size", 0)),
-		PageToken: c.Query("page_token", ""),
+		PageSize:  int32(c.QueryInt(QueryParamPageSize, 0)),
+		PageToken: c.Query(QueryParamPageToken, ""),
 	}
 
 	resp, err := h.client.ListOrganizations(c.UserContext(), &req)
@@ -187,7 +166,7 @@ func (h *OrganizationHandler) list(c *fiber.Ctx) error {
 		return response.Error(c, errors.FromGRPC(err))
 	}
 
-	orgsDto := make([]*dto.Organization, len(resp.GetOrganizations()))
+	orgsDto := make([]*Organization, len(resp.GetOrganizations()))
 	for i, org := range resp.GetOrganizations() {
 		orgsDto[i] = protoOrgToDTO(org)
 	}
@@ -196,7 +175,7 @@ func (h *OrganizationHandler) list(c *fiber.Ctx) error {
 		c,
 		fiber.StatusOK,
 		"organizations fetched successfully",
-		&dto.ListOrganizationsResponse{
+		&ListOrganizationsResponse{
 			Organizations: orgsDto,
 			TotalCount:    resp.GetTotalCount(),
 			NextPageToken: resp.GetNextPageToken(),
@@ -204,6 +183,16 @@ func (h *OrganizationHandler) list(c *fiber.Ctx) error {
 	)
 }
 
+// @Summary Update Organization
+// @Description Update an existing organization
+// @Tags Organizations
+// @Accept json
+// @Produce json
+// @Security BearerAuth
+// @Param organizationID path string true "Organization ID"
+// @Param request body tenantV1.UpdateOrganizationRequest true "Update details"
+// @Success 200 {object} response.SuccessResponse{data=Organization}
+// @Router /organizations/{organizationID} [patch]
 func (h *OrganizationHandler) update(c *fiber.Ctx) error {
 	var req tenantV1.UpdateOrganizationRequest
 	if err := c.BodyParser(&req); err != nil {
@@ -226,6 +215,16 @@ func (h *OrganizationHandler) update(c *fiber.Ctx) error {
 	)
 }
 
+// @Summary Archive Organization
+// @Description Archive an organization
+// @Tags Organizations
+// @Accept json
+// @Produce json
+// @Security BearerAuth
+// @Param organizationID path string true "Organization ID"
+// @Param request body tenantV1.ArchiveOrganizationRequest true "Archive request details"
+// @Success 200 {object} response.SuccessResponse
+// @Router /organizations/{organizationID}/archive [delete]
 func (h *OrganizationHandler) archive(c *fiber.Ctx) error {
 	var req tenantV1.ArchiveOrganizationRequest
 	if err := c.BodyParser(&req); err != nil {
@@ -241,6 +240,15 @@ func (h *OrganizationHandler) archive(c *fiber.Ctx) error {
 	return response.SuccessWithMessage(c, fiber.StatusOK, resp.GetMessage(), nil)
 }
 
+// @Summary Restore Organization
+// @Description Restore an archived organization
+// @Tags Organizations
+// @Accept json
+// @Produce json
+// @Security BearerAuth
+// @Param organizationID path string true "Organization ID"
+// @Success 200 {object} response.SuccessResponse
+// @Router /organizations/{organizationID}/restore [post]
 func (h *OrganizationHandler) restore(c *fiber.Ctx) error {
 	req := tenantV1.TenantOrganizationIDRequest{
 		OrganizationId: getOrgIDFromLocals(c),
@@ -254,6 +262,16 @@ func (h *OrganizationHandler) restore(c *fiber.Ctx) error {
 	return response.SuccessWithMessage(c, fiber.StatusOK, resp.GetMessage(), nil)
 }
 
+// @Summary Delete Organization
+// @Description Delete an organization completely
+// @Tags Organizations
+// @Accept json
+// @Produce json
+// @Security BearerAuth
+// @Param organizationID path string true "Organization ID"
+// @Param request body tenantV1.DeleteOrganizationRequest true "Delete request details"
+// @Success 200 {object} response.SuccessResponse
+// @Router /organizations/{organizationID} [delete]
 func (h *OrganizationHandler) delete(c *fiber.Ctx) error {
 	var req tenantV1.DeleteOrganizationRequest
 	if err := c.BodyParser(&req); err != nil {
@@ -269,6 +287,16 @@ func (h *OrganizationHandler) delete(c *fiber.Ctx) error {
 	return response.SuccessWithMessage(c, fiber.StatusOK, resp.GetMessage(), nil)
 }
 
+// @Summary Transfer Organization Ownership
+// @Description Transfer the ownership of the organization
+// @Tags Organizations
+// @Accept json
+// @Produce json
+// @Security BearerAuth
+// @Param organizationID path string true "Organization ID"
+// @Param request body tenantV1.TransferOwnershipRequest true "Transfer details"
+// @Success 200 {object} response.SuccessResponse
+// @Router /organizations/{organizationID}/transfer-ownership [post]
 func (h *OrganizationHandler) transferOwnership(c *fiber.Ctx) error {
 	var req tenantV1.TransferOwnershipRequest
 	if err := c.BodyParser(&req); err != nil {
@@ -284,6 +312,15 @@ func (h *OrganizationHandler) transferOwnership(c *fiber.Ctx) error {
 	return response.SuccessWithMessage(c, fiber.StatusOK, resp.GetMessage(), nil)
 }
 
+// @Summary List Organization Roles
+// @Description Get all roles for the organization
+// @Tags Organizations
+// @Accept json
+// @Produce json
+// @Security BearerAuth
+// @Param organizationID path string true "Organization ID"
+// @Success 200 {object} response.SuccessResponse{data=[]OrganizationRole}
+// @Router /organizations/{organizationID}/roles [get]
 func (h *OrganizationHandler) listRoles(c *fiber.Ctx) error {
 	var req tenantV1.TenantOrganizationIDRequest
 	req.OrganizationId = getOrgIDFromLocals(c)
@@ -293,7 +330,7 @@ func (h *OrganizationHandler) listRoles(c *fiber.Ctx) error {
 		return response.Error(c, errors.FromGRPC(err))
 	}
 
-	rolesDto := make([]*dto.OrganizationRole, len(resp.GetRoles()))
+	rolesDto := make([]*OrganizationRole, len(resp.GetRoles()))
 	for i, r := range resp.GetRoles() {
 		rolesDto[i] = protoOrgRoleToDTO(r)
 	}
@@ -306,6 +343,15 @@ func (h *OrganizationHandler) listRoles(c *fiber.Ctx) error {
 	)
 }
 
+// @Summary List Organization Permissions
+// @Description Get all permissions for the organization
+// @Tags Organizations
+// @Accept json
+// @Produce json
+// @Security BearerAuth
+// @Param organizationID path string true "Organization ID"
+// @Success 200 {object} response.SuccessResponse{data=[]OrganizationPerm}
+// @Router /organizations/{organizationID}/permissions [get]
 // Get all permissions
 func (h *OrganizationHandler) listPermissions(c *fiber.Ctx) error {
 	var req tenantV1.TenantOrganizationIDRequest
@@ -316,7 +362,7 @@ func (h *OrganizationHandler) listPermissions(c *fiber.Ctx) error {
 		return response.Error(c, errors.FromGRPC(err))
 	}
 
-	permsDto := make([]*dto.OrganizationPerm, len(resp.GetPermissions()))
+	permsDto := make([]*OrganizationPerm, len(resp.GetPermissions()))
 	for i, p := range resp.GetPermissions() {
 		permsDto[i] = protoPermToDTO(p)
 	}

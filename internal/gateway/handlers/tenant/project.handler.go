@@ -2,94 +2,23 @@ package tenant
 
 import (
 	"github.com/gofiber/fiber/v2"
-	"github.com/vyolayer/vyolayer/internal/gateway/middleware"
-	dto "github.com/vyolayer/vyolayer/internal/shared/dto/tenant"
 	"github.com/vyolayer/vyolayer/pkg/errors"
-	"github.com/vyolayer/vyolayer/pkg/jwt"
-	"github.com/vyolayer/vyolayer/pkg/logger"
 	"github.com/vyolayer/vyolayer/pkg/response"
 	tenantV1 "github.com/vyolayer/vyolayer/proto/tenant/v1"
 )
 
-// ProjectHandler handles all /organizations/:organizationID/projects/* routes.
-type ProjectHandler struct {
-	logger *logger.AppLogger
-	client tenantV1.ProjectServiceClient
-	iamJWT jwt.IamJWT
-}
-
-func NewProjectHandler(
-	logger *logger.AppLogger,
-	client tenantV1.ProjectServiceClient,
-	iamJWT jwt.IamJWT,
-) *ProjectHandler {
-	return &ProjectHandler{
-		logger: logger.WithContext("Project Handler"),
-		client: client,
-		iamJWT: iamJWT,
-	}
-}
-
-// RegisterRoutes mounts all project and project-member routes.
-//
-// Route hierarchy:
-//
-//	GET    /organizations/:organizationID/projects
-//	POST   /organizations/:organizationID/projects
-//	GET    /organizations/:organizationID/projects/:projectID
-//	PATCH  /organizations/:organizationID/projects/:projectID
-//	DELETE /organizations/:organizationID/projects/:projectID
-//
-//	GET    /organizations/:organizationID/projects/:projectID/members
-//	GET    /organizations/:organizationID/projects/:projectID/members/me
-//	GET    /organizations/:organizationID/projects/:projectID/members/:memberID
-//	POST   /organizations/:organizationID/projects/:projectID/members
-//	PATCH  /organizations/:organizationID/projects/:projectID/members/:memberID/role
-//	DELETE /organizations/:organizationID/projects/:projectID/members/:memberID
-//	DELETE /organizations/:organizationID/projects/:projectID/members/leave
-func (h *ProjectHandler) RegisterRoutes(router fiber.Router) {
-	grpcCtxMiddleware := middleware.NewGrpcCtxMiddleware(tenantGRPCTimeout)
-
-	// /organizations/:organizationID/projects
-	projects := router.Group("/organizations/:organizationID/projects")
-	projects.Use(
-		grpcCtxMiddleware.Handler(),
-		middleware.IamJWTVerify(h.iamJWT),
-		middleware.ValidateOrganizationID(),
-	)
-
-	// Collection routes
-	projects.Get("/", h.listProjects)
-	projects.Post("/", h.createProject)
-
-	// Single-project sub-group — requires a valid :projectID
-	project := projects.Group("/:projectID", middleware.ValidateProjectID())
-	project.Get("/", h.getProject)
-	project.Patch("/", h.updateProject)
-	project.Delete("/", h.deleteProject)
-
-	// ── Members sub-group ────────────────────────────────────────────────────
-	members := project.Group("/members")
-	members.Get("/", h.listMembers)
-	members.Post("/", h.addMember)
-	members.Get("/me", h.getCurrentMember)
-	// members.Delete("/leave", h.leaveProject)
-	members.Get("/:memberID", h.getMember)
-	members.Post("/:memberID/role", h.changeMemberRole)
-	members.Delete("/:memberID", h.removeMember)
-
-	h.logger.Info("Project routes registered", "")
-}
-
-// ─── helpers ─────────────────────────────────────────────────────────────────
-
-func getProjectIDFromLocals(c *fiber.Ctx) string {
-	id, _ := c.Locals("project_id").(string)
-	return id
-}
-
 // ─── Project CRUD ─────────────────────────────────────────────────────────────
 
+// @Summary Create Project
+// @Description Create a new project within an organization
+// @Tags Projects
+// @Accept json
+// @Produce json
+// @Security BearerAuth
+// @Param organizationID path string true "Organization ID"
+// @Param request body tenantV1.CreateProjectRequest true "Project details"
+// @Success 201 {object} response.SuccessResponse{data=Project}
+// @Router /organizations/{organizationID}/projects [post]
 func (h *ProjectHandler) createProject(c *fiber.Ctx) error {
 	var req tenantV1.CreateProjectRequest
 	if err := c.BodyParser(&req); err != nil {
@@ -110,6 +39,16 @@ func (h *ProjectHandler) createProject(c *fiber.Ctx) error {
 	)
 }
 
+// @Summary Get Project
+// @Description Get details of a specific project
+// @Tags Projects
+// @Accept json
+// @Produce json
+// @Security BearerAuth
+// @Param organizationID path string true "Organization ID"
+// @Param projectID path string true "Project ID"
+// @Success 200 {object} response.SuccessResponse{data=Project}
+// @Router /organizations/{organizationID}/projects/{projectID} [get]
 func (h *ProjectHandler) getProject(c *fiber.Ctx) error {
 	req := tenantV1.GetProjectRequest{
 		OrganizationId: getOrgIDFromLocals(c),
@@ -129,11 +68,22 @@ func (h *ProjectHandler) getProject(c *fiber.Ctx) error {
 	)
 }
 
+// @Summary List Projects
+// @Description List projects within an organization
+// @Tags Projects
+// @Accept json
+// @Produce json
+// @Security BearerAuth
+// @Param organizationID path string true "Organization ID"
+// @Param page_size query int false "Page size"
+// @Param page_token query string false "Page token"
+// @Success 200 {object} response.SuccessResponse{data=ListProjectsResponse}
+// @Router /organizations/{organizationID}/projects [get]
 func (h *ProjectHandler) listProjects(c *fiber.Ctx) error {
 	req := tenantV1.ListProjectsRequest{
 		OrganizationId: getOrgIDFromLocals(c),
-		PageSize:       int32(c.QueryInt("page_size", 0)),
-		PageToken:      c.Query("page_token", ""),
+		PageSize:       int32(c.QueryInt(QueryParamPageSize, 0)),
+		PageToken:      c.Query(QueryParamPageToken, ""),
 	}
 
 	resp, err := h.client.ListProjects(c.UserContext(), &req)
@@ -141,7 +91,7 @@ func (h *ProjectHandler) listProjects(c *fiber.Ctx) error {
 		return response.Error(c, errors.FromGRPC(err))
 	}
 
-	projects := make([]*dto.Project, len(resp.GetProjects()))
+	projects := make([]*Project, len(resp.GetProjects()))
 	for i, p := range resp.GetProjects() {
 		projects[i] = protoProjectToDTO(p)
 	}
@@ -150,7 +100,7 @@ func (h *ProjectHandler) listProjects(c *fiber.Ctx) error {
 		c,
 		fiber.StatusOK,
 		"projects fetched successfully",
-		&dto.ListProjectsResponse{
+		&ListProjectsResponse{
 			Projects:      projects,
 			TotalCount:    resp.GetTotalCount(),
 			NextPageToken: resp.GetNextPageToken(),
@@ -158,6 +108,17 @@ func (h *ProjectHandler) listProjects(c *fiber.Ctx) error {
 	)
 }
 
+// @Summary Update Project
+// @Description Update project details
+// @Tags Projects
+// @Accept json
+// @Produce json
+// @Security BearerAuth
+// @Param organizationID path string true "Organization ID"
+// @Param projectID path string true "Project ID"
+// @Param request body tenantV1.UpdateProjectRequest true "Update details"
+// @Success 200 {object} response.SuccessResponse{data=Project}
+// @Router /organizations/{organizationID}/projects/{projectID} [patch]
 func (h *ProjectHandler) updateProject(c *fiber.Ctx) error {
 	var req tenantV1.UpdateProjectRequest
 	if err := c.BodyParser(&req); err != nil {
@@ -179,6 +140,17 @@ func (h *ProjectHandler) updateProject(c *fiber.Ctx) error {
 	)
 }
 
+// @Summary Delete Project
+// @Description Delete a project
+// @Tags Projects
+// @Accept json
+// @Produce json
+// @Security BearerAuth
+// @Param organizationID path string true "Organization ID"
+// @Param projectID path string true "Project ID"
+// @Param request body tenantV1.DeleteProjectRequest true "Delete details"
+// @Success 200 {object} response.SuccessResponse
+// @Router /organizations/{organizationID}/projects/{projectID} [delete]
 func (h *ProjectHandler) deleteProject(c *fiber.Ctx) error {
 	var req tenantV1.DeleteProjectRequest
 	if err := c.BodyParser(&req); err != nil {
@@ -197,12 +169,24 @@ func (h *ProjectHandler) deleteProject(c *fiber.Ctx) error {
 
 // ─── Project Member operations ────────────────────────────────────────────────
 
+// @Summary List Project Members
+// @Description List members of a project
+// @Tags Project Members
+// @Accept json
+// @Produce json
+// @Security BearerAuth
+// @Param organizationID path string true "Organization ID"
+// @Param projectID path string true "Project ID"
+// @Param page_size query int false "Page size"
+// @Param page_token query string false "Page token"
+// @Success 200 {object} response.SuccessResponse{data=ListProjectMembersResponse}
+// @Router /organizations/{organizationID}/projects/{projectID}/members [get]
 func (h *ProjectHandler) listMembers(c *fiber.Ctx) error {
 	req := tenantV1.ListProjectMembersRequest{
 		OrganizationId: getOrgIDFromLocals(c),
 		ProjectId:      getProjectIDFromLocals(c),
-		PageSize:       int32(c.QueryInt("page_size", 0)),
-		PageToken:      c.Query("page_token", ""),
+		PageSize:       int32(c.QueryInt(QueryParamPageSize, 0)),
+		PageToken:      c.Query(QueryParamPageToken, ""),
 	}
 
 	resp, err := h.client.ListMembers(c.UserContext(), &req)
@@ -210,7 +194,7 @@ func (h *ProjectHandler) listMembers(c *fiber.Ctx) error {
 		return response.Error(c, errors.FromGRPC(err))
 	}
 
-	members := make([]*dto.ProjectMember, len(resp.GetMembers()))
+	members := make([]*ProjectMember, len(resp.GetMembers()))
 	for i, m := range resp.GetMembers() {
 		members[i] = protoProjectMemberToDTO(m)
 	}
@@ -219,7 +203,7 @@ func (h *ProjectHandler) listMembers(c *fiber.Ctx) error {
 		c,
 		fiber.StatusOK,
 		"members fetched successfully",
-		&dto.ListProjectMembersResponse{
+		&ListProjectMembersResponse{
 			Members:       members,
 			TotalCount:    resp.GetTotalCount(),
 			NextPageToken: resp.GetNextPageToken(),
@@ -227,11 +211,22 @@ func (h *ProjectHandler) listMembers(c *fiber.Ctx) error {
 	)
 }
 
+// @Summary Get Project Member
+// @Description Get details of a project member
+// @Tags Project Members
+// @Accept json
+// @Produce json
+// @Security BearerAuth
+// @Param organizationID path string true "Organization ID"
+// @Param projectID path string true "Project ID"
+// @Param memberID path string true "Member ID"
+// @Success 200 {object} response.SuccessResponse{data=ProjectMember}
+// @Router /organizations/{organizationID}/projects/{projectID}/members/{memberID} [get]
 func (h *ProjectHandler) getMember(c *fiber.Ctx) error {
 	req := tenantV1.GetProjectMemberRequest{
 		OrganizationId: getOrgIDFromLocals(c),
 		ProjectId:      getProjectIDFromLocals(c),
-		MemberId:       c.Params("memberID"),
+		MemberId:       c.Params(ParamMemberID),
 	}
 
 	resp, err := h.client.GetMember(c.UserContext(), &req)
@@ -247,6 +242,16 @@ func (h *ProjectHandler) getMember(c *fiber.Ctx) error {
 	)
 }
 
+// @Summary Get Current Project Member
+// @Description Get current user's membership details for the project
+// @Tags Project Members
+// @Accept json
+// @Produce json
+// @Security BearerAuth
+// @Param organizationID path string true "Organization ID"
+// @Param projectID path string true "Project ID"
+// @Success 200 {object} response.SuccessResponse{data=ProjectMember}
+// @Router /organizations/{organizationID}/projects/{projectID}/members/me [get]
 func (h *ProjectHandler) getCurrentMember(c *fiber.Ctx) error {
 	req := tenantV1.ListProjectMembersRequest{
 		OrganizationId: getOrgIDFromLocals(c),
@@ -266,6 +271,17 @@ func (h *ProjectHandler) getCurrentMember(c *fiber.Ctx) error {
 	)
 }
 
+// @Summary Add Project Member
+// @Description Add a member to a project
+// @Tags Project Members
+// @Accept json
+// @Produce json
+// @Security BearerAuth
+// @Param organizationID path string true "Organization ID"
+// @Param projectID path string true "Project ID"
+// @Param request body tenantV1.AddProjectMemberRequest true "Member details"
+// @Success 201 {object} response.SuccessResponse{data=ProjectMember}
+// @Router /organizations/{organizationID}/projects/{projectID}/members [post]
 func (h *ProjectHandler) addMember(c *fiber.Ctx) error {
 	var req tenantV1.AddProjectMemberRequest
 	if err := c.BodyParser(&req); err != nil {
@@ -287,6 +303,18 @@ func (h *ProjectHandler) addMember(c *fiber.Ctx) error {
 	)
 }
 
+// @Summary Change Project Member Role
+// @Description Change the role of a project member
+// @Tags Project Members
+// @Accept json
+// @Produce json
+// @Security BearerAuth
+// @Param organizationID path string true "Organization ID"
+// @Param projectID path string true "Project ID"
+// @Param memberID path string true "Member ID"
+// @Param request body tenantV1.ChangeProjectMemberRoleRequest true "Role details"
+// @Success 200 {object} response.SuccessResponse
+// @Router /organizations/{organizationID}/projects/{projectID}/members/{memberID}/role [post]
 func (h *ProjectHandler) changeMemberRole(c *fiber.Ctx) error {
 	var req tenantV1.ChangeProjectMemberRoleRequest
 	if err := c.BodyParser(&req); err != nil {
@@ -294,7 +322,7 @@ func (h *ProjectHandler) changeMemberRole(c *fiber.Ctx) error {
 	}
 	req.OrganizationId = getOrgIDFromLocals(c)
 	req.ProjectId = getProjectIDFromLocals(c)
-	req.MemberId = c.Params("memberID")
+	req.MemberId = c.Params(ParamMemberID)
 
 	resp, err := h.client.ChangeMemberRole(c.UserContext(), &req)
 	if err != nil {
@@ -304,11 +332,22 @@ func (h *ProjectHandler) changeMemberRole(c *fiber.Ctx) error {
 	return response.SuccessWithMessage(c, fiber.StatusOK, resp.GetMessage(), nil)
 }
 
+// @Summary Remove Project Member
+// @Description Remove a member from the project
+// @Tags Project Members
+// @Accept json
+// @Produce json
+// @Security BearerAuth
+// @Param organizationID path string true "Organization ID"
+// @Param projectID path string true "Project ID"
+// @Param memberID path string true "Member ID"
+// @Success 200 {object} response.SuccessResponse
+// @Router /organizations/{organizationID}/projects/{projectID}/members/{memberID} [delete]
 func (h *ProjectHandler) removeMember(c *fiber.Ctx) error {
 	req := tenantV1.RemoveProjectMemberRequest{
 		OrganizationId: getOrgIDFromLocals(c),
 		ProjectId:      getProjectIDFromLocals(c),
-		MemberId:       c.Params("memberID"),
+		MemberId:       c.Params(ParamMemberID),
 	}
 
 	resp, err := h.client.RemoveMember(c.UserContext(), &req)
@@ -319,6 +358,16 @@ func (h *ProjectHandler) removeMember(c *fiber.Ctx) error {
 	return response.SuccessWithMessage(c, fiber.StatusOK, resp.GetMessage(), nil)
 }
 
+// @Summary Leave Project
+// @Description Leave the project
+// @Tags Project Members
+// @Accept json
+// @Produce json
+// @Security BearerAuth
+// @Param organizationID path string true "Organization ID"
+// @Param projectID path string true "Project ID"
+// @Success 200 {object} response.SuccessResponse
+// @Router /organizations/{organizationID}/projects/{projectID}/members/leave [delete]
 func (h *ProjectHandler) leaveProject(c *fiber.Ctx) error {
 	req := tenantV1.ProjectIdRequest{
 		OrganizationId: getOrgIDFromLocals(c),

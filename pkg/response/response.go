@@ -9,11 +9,11 @@ import (
 
 // SuccessResponse represents a successful API response
 type SuccessResponse struct {
-	Success    bool        `json:"success" example:"true"`
-	StatusCode int         `json:"statusCode" example:"200"`
-	Message    string      `json:"message,omitempty" example:"Operation successful"`
-	Data       interface{} `json:"data,omitempty"`
-	Meta       *Meta       `json:"meta,omitempty"`
+	Success    bool   `json:"success" example:"true"`
+	StatusCode int    `json:"statusCode" example:"200"`
+	Message    string `json:"message,omitempty" example:"Operation successful"`
+	Data       any    `json:"data,omitempty"`
+	Meta       *Meta  `json:"meta,omitempty"`
 }
 
 // ErrorResponse represents an error API response
@@ -64,13 +64,32 @@ func GetRequestID(ctx *fiber.Ctx) string {
 	return ""
 }
 
+func Send[T any](ctx *fiber.Ctx, statusCode int, message string, data T) error {
+	ctx.Locals("response_success", true)
+	ctx.Locals("response_message", message)
+	ctx.Locals("response_error_code", "")
+
+	response := SuccessResponse{
+		Success:    true,
+		StatusCode: statusCode,
+		Message:    message,
+		Data:       data,
+		Meta: &Meta{
+			RequestID: GetRequestID(ctx),
+			Timestamp: time.Now(),
+		},
+	}
+
+	return ctx.Status(statusCode).JSON(response)
+}
+
 // Success sends a successful response with data
-func Success(ctx *fiber.Ctx, data interface{}) error {
+func Success(ctx *fiber.Ctx, data any) error {
 	return SuccessWithMessage(ctx, fiber.StatusOK, "Success", data)
 }
 
 // SuccessWithMessage sends a successful response with a custom message
-func SuccessWithMessage(ctx *fiber.Ctx, statusCode int, message string, data interface{}) error {
+func SuccessWithMessage(ctx *fiber.Ctx, statusCode int, message string, data any) error {
 	ctx.Locals("response_success", true)
 	ctx.Locals("response_message", message)
 	ctx.Locals("response_error_code", "")

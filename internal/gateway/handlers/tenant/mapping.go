@@ -1,17 +1,16 @@
 package tenant
 
 import (
-	tenantdto "github.com/vyolayer/vyolayer/internal/shared/dto/tenant"
 	tenantV1 "github.com/vyolayer/vyolayer/proto/tenant/v1"
 )
 
 // Proto -> DTO (Organization)
-func protoOrgToDTO(org *tenantV1.Organization) *tenantdto.Organization {
+func protoOrgToDTO(org *tenantV1.Organization) *Organization {
 	if org == nil {
 		return nil
 	}
 
-	return &tenantdto.Organization{
+	return &Organization{
 		ID:           org.GetId(),
 		Name:         org.GetName(),
 		Slug:         org.GetSlug(),
@@ -28,36 +27,34 @@ func protoOrgToDTO(org *tenantV1.Organization) *tenantdto.Organization {
 }
 
 // Proto -> DTO (OrganizationResponse -> OrganizationDetailResponse)
-func protoOrgResponseToDTO(resp *tenantV1.OrganizationResponse) *tenantdto.OrganizationDetailResponse {
+func protoOrgResponseToDTO(resp *tenantV1.OrganizationResponse) *OrganizationDetailResponse {
 	if resp == nil {
 		return nil
 	}
 
-	members := make([]*tenantdto.OrganizationMember, len(resp.GetMembers()))
+	members := make([]*OrganizationMember, len(resp.GetMembers()))
 	for i, m := range resp.GetMembers() {
 		members[i] = protoMemberToDTO(m)
 	}
 
-	return &tenantdto.OrganizationDetailResponse{
+	return &OrganizationDetailResponse{
 		Organization: protoOrgToDTO(resp.GetOrganization()),
 		Members:      members,
 	}
 }
 
 // Proto -> DTO (Organization member)
-func protoMemberToDTO(m *tenantV1.OrganizationMember) *tenantdto.OrganizationMember {
+func protoMemberToDTO(m *tenantV1.OrganizationMember) *OrganizationMember {
 	if m == nil {
 		return nil
 	}
 
-	// roles := make([]*tenantdto.OrganizationRole, len(m.GetRoles()))
 	roleNames := make([]string, len(m.GetRoles()))
 	for i, r := range m.GetRoles() {
-		// roles[i] = protoOrgRoleToDTO(r)
 		roleNames[i] = r.GetName()
 	}
 
-	return &tenantdto.OrganizationMember{
+	return &OrganizationMember{
 		ID:            m.GetId(),
 		UserID:        m.GetUserId(),
 		FullName:      m.GetFullName(),
@@ -73,12 +70,12 @@ func protoMemberToDTO(m *tenantV1.OrganizationMember) *tenantdto.OrganizationMem
 }
 
 // Proto -> DTO (Organization role)
-func protoOrgRoleToDTO(r *tenantV1.OrganizationRole) *tenantdto.OrganizationRole {
+func protoOrgRoleToDTO(r *tenantV1.OrganizationRole) *OrganizationRole {
 	if r == nil {
 		return nil
 	}
 
-	return &tenantdto.OrganizationRole{
+	return &OrganizationRole{
 		ID:           r.GetId(),
 		Name:         r.GetName(),
 		Description:  r.GetDescription(),
@@ -88,12 +85,12 @@ func protoOrgRoleToDTO(r *tenantV1.OrganizationRole) *tenantdto.OrganizationRole
 }
 
 // Proto -> DTO (Organization permission)
-func protoPermToDTO(p *tenantV1.OrganizationPermission) *tenantdto.OrganizationPerm {
+func protoPermToDTO(p *tenantV1.OrganizationPermission) *OrganizationPerm {
 	if p == nil {
 		return nil
 	}
 
-	return &tenantdto.OrganizationPerm{
+	return &OrganizationPerm{
 		ID:           p.GetId(),
 		Resource:     p.GetResource(),
 		Action:       p.GetAction(),
@@ -104,12 +101,12 @@ func protoPermToDTO(p *tenantV1.OrganizationPermission) *tenantdto.OrganizationP
 }
 
 // Proto -> DTO (Organization invitation)
-func protoInvitationToDTO(inv *tenantV1.OrganizationMemberInvitation) *tenantdto.OrganizationInvitation {
+func protoInvitationToDTO(inv *tenantV1.OrganizationMemberInvitation) *OrganizationInvitation {
 	if inv == nil {
 		return nil
 	}
 
-	return &tenantdto.OrganizationInvitation{
+	return &OrganizationInvitation{
 		ID:             inv.GetId(),
 		OrganizationID: inv.GetOrganizationId(),
 		Email:          inv.GetEmail(),
@@ -124,32 +121,31 @@ func protoInvitationToDTO(inv *tenantV1.OrganizationMemberInvitation) *tenantdto
 }
 
 // Proto -> DTO (Organization invitation for org)
-func protoInvitationForOrgToDTO(inv *tenantV1.OrganizationMemberInvitationForOrg) *tenantdto.OrganizationInvitationForOrg {
+func protoInvitationForOrgToDTO(inv *tenantV1.OrganizationMemberInvitationForOrg) *OrganizationInvitationForOrg {
 	if inv == nil {
 		return nil
 	}
 
 	invDto := protoInvitationToDTO(inv.GetInvitation())
-	invByDto := &tenantdto.InvitedBy{
+	invByDto := &InvitedBy{
 		MemberID: inv.GetInvitedBy().GetMemberId(),
 		FullName: inv.GetInvitedBy().GetFullName(),
 		Email:    inv.GetInvitedBy().GetEmail(),
 	}
 
-	return &tenantdto.OrganizationInvitationForOrg{
+	return &OrganizationInvitationForOrg{
 		Invitation: invDto,
 		InvitedBy:  invByDto,
 	}
 }
 
 // Proto -> DTO (Project)
-func protoProjectToDTO(p *tenantV1.Project) *tenantdto.Project {
-
+func protoProjectToDTO(p *tenantV1.Project) *Project {
 	if p == nil {
 		return nil
 	}
 
-	return &tenantdto.Project{
+	return &Project{
 		ID:             p.GetId(),
 		OrganizationID: p.GetOrganizationId(),
 		Name:           p.GetName(),
@@ -165,23 +161,23 @@ func protoProjectToDTO(p *tenantV1.Project) *tenantdto.Project {
 }
 
 // Proto -> DTO (ProjectResponse)
-func protoProjectResponseToDTO(resp *tenantV1.ProjectResponse) *tenantdto.ProjectResponse {
+func protoProjectResponseToDTO(resp *tenantV1.ProjectResponse) *ProjectResponse {
 	if resp == nil {
 		return nil
 	}
 
-	return &tenantdto.ProjectResponse{
+	return &ProjectResponse{
 		Project: protoProjectToDTO(resp.GetProject()),
 	}
 }
 
 // Proto -> DTO (ProjectMember)
-func protoProjectMemberToDTO(m *tenantV1.ProjectMember) *tenantdto.ProjectMember {
+func protoProjectMemberToDTO(m *tenantV1.ProjectMember) *ProjectMember {
 	if m == nil {
 		return nil
 	}
 
-	return &tenantdto.ProjectMember{
+	return &ProjectMember{
 		ID:        m.GetId(),
 		UserID:    m.GetUserId(),
 		Email:     m.GetEmail(),
@@ -189,6 +185,6 @@ func protoProjectMemberToDTO(m *tenantV1.ProjectMember) *tenantdto.ProjectMember
 		Role:      m.GetRole(),
 		IsActive:  m.GetIsActive(),
 		JoinedAt:  m.GetJoinedAt(),
-		RemovedAt: m.RemovedAt, // *string – optional in proto3
+		RemovedAt: m.RemovedAt,
 	}
 }
