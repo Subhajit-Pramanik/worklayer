@@ -1,0 +1,2610 @@
+basePath: /v1
+definitions:
+  account.AllSessionsResponseDTO:
+    properties:
+      sessions:
+        items:
+          $ref: '#/definitions/account.SessionDTO'
+        type: array
+    type: object
+  account.ChangePasswordRequestDTO:
+    properties:
+      current_password:
+        type: string
+      new_password:
+        type: string
+    type: object
+  account.ForgotPasswordRequestDTO:
+    properties:
+      email:
+        type: string
+    type: object
+  account.LoginRequestDTO:
+    properties:
+      email:
+        type: string
+      password:
+        type: string
+    type: object
+  account.LoginResponseDTO:
+    properties:
+      access_token:
+        type: string
+      expires_in:
+        type: integer
+      refresh_token:
+        type: string
+    type: object
+  account.RefreshSessionResponseDTO:
+    properties:
+      access_token:
+        type: string
+      expires_in:
+        type: integer
+      refresh_token:
+        type: string
+    type: object
+  account.RegisterRequestDTO:
+    properties:
+      email:
+        type: string
+      first_name:
+        type: string
+      last_name:
+        type: string
+      password:
+        type: string
+    type: object
+  account.RegisterResponseDTO:
+    properties:
+      message:
+        type: string
+      user:
+        $ref: '#/definitions/account.UserDTO'
+    type: object
+  account.ResendVerificationEmailRequestDTO:
+    properties:
+      email:
+        type: string
+    type: object
+  account.ResetPasswordRequestDTO:
+    properties:
+      password:
+        type: string
+    type: object
+  account.SessionDTO:
+    properties:
+      client_ip:
+        type: string
+      created_at:
+        type: string
+      expires_at:
+        type: string
+      id:
+        type: string
+      is_blocked:
+        type: boolean
+      refresh_token:
+        type: string
+      user_agent:
+        type: string
+      user_id:
+        type: string
+    type: object
+  account.UserDTO:
+    properties:
+      created_at:
+        type: string
+      email:
+        type: string
+      first_name:
+        type: string
+      id:
+        type: string
+      last_name:
+        type: string
+      updated_at:
+        type: string
+    type: object
+  apikey.APIKeyDTO:
+    properties:
+      created_at:
+        type: string
+      created_by:
+        type: string
+      description:
+        type: string
+      environment:
+        type: string
+      expires_at:
+        type: string
+      id:
+        type: string
+      last_used_at:
+        type: string
+      last_used_ip:
+        type: string
+      last_used_ua:
+        type: string
+      name:
+        type: string
+      organization_id:
+        type: string
+      prefix:
+        type: string
+      project_id:
+        type: string
+      revoked_at:
+        type: string
+      revoked_by:
+        type: string
+      scopes:
+        items:
+          type: string
+        type: array
+      status:
+        type: string
+      updated_at:
+        type: string
+    type: object
+  apikey.CreateAPIKeyDTO:
+    properties:
+      api_key:
+        $ref: '#/definitions/apikey.APIKeyDTO'
+      secret:
+        type: string
+    type: object
+  apikey.GetAPIKeyDTO:
+    properties:
+      api_key:
+        $ref: '#/definitions/apikey.APIKeyDTO'
+    type: object
+  apikey.ListAPIKeysDTO:
+    properties:
+      api_keys:
+        items:
+          $ref: '#/definitions/apikey.APIKeyDTO'
+        type: array
+      limit:
+        type: integer
+      page:
+        type: integer
+      total:
+        type: integer
+    type: object
+  apikey.RevokeAPIKeyDTO:
+    properties:
+      message:
+        type: string
+      success:
+        type: boolean
+    type: object
+  apikey.RotateAPIKeyDTO:
+    properties:
+      api_key:
+        $ref: '#/definitions/apikey.APIKeyDTO'
+      secret:
+        type: string
+    type: object
+  apikey.ValidateAPIKeyDTO:
+    properties:
+      api_key:
+        $ref: '#/definitions/apikey.APIKeyDTO'
+      valid:
+        type: boolean
+    type: object
+  apikey.ValidateAPIKeyRequest:
+    properties:
+      key:
+        type: string
+    type: object
+  consoledto.ActionDTO:
+    properties:
+      danger:
+        type: boolean
+      key:
+        type: string
+      label:
+        type: string
+      scope:
+        type: string
+      variant:
+        type: string
+    type: object
+  consoledto.ColumnDTO:
+    properties:
+      key:
+        type: string
+      label:
+        type: string
+      sortable:
+        type: boolean
+      type:
+        type: string
+      visible:
+        type: boolean
+    type: object
+  consoledto.FilterDTO:
+    properties:
+      key:
+        type: string
+      label:
+        type: string
+      type:
+        type: string
+    type: object
+  consoledto.ResourceDTO:
+    properties:
+      actions:
+        items:
+          $ref: '#/definitions/consoledto.ActionDTO'
+        type: array
+      columns:
+        items:
+          $ref: '#/definitions/consoledto.ColumnDTO'
+        type: array
+      filters:
+        items:
+          $ref: '#/definitions/consoledto.FilterDTO'
+        type: array
+      icon:
+        type: string
+      key:
+        type: string
+      label:
+        type: string
+      route:
+        type: string
+    type: object
+  consoledto.ServiceManifestDTO:
+    properties:
+      description:
+        example: Auth Service
+        type: string
+      icon:
+        example: auth
+        type: string
+      key:
+        example: auth
+        type: string
+      name:
+        example: Auth Service
+        type: string
+      plan:
+        example: pro
+        type: string
+      status:
+        example: active
+        type: string
+    type: object
+  consoledto.ServiceManifestWithResourcesDTO:
+    properties:
+      description:
+        example: Auth Service
+        type: string
+      icon:
+        example: auth
+        type: string
+      key:
+        example: auth
+        type: string
+      name:
+        example: Auth Service
+        type: string
+      plan:
+        example: pro
+        type: string
+      resources:
+        items:
+          $ref: '#/definitions/consoledto.ResourceDTO'
+        type: array
+      status:
+        example: active
+        type: string
+    type: object
+  iam.AuthSessionDTO:
+    properties:
+      access_token:
+        type: string
+      access_token_expires_at:
+        type: integer
+    type: object
+  iam.AvatarDTO:
+    properties:
+      fallback_char:
+        type: string
+      fallback_color:
+        type: string
+      id:
+        type: integer
+      url:
+        type: string
+    type: object
+  iam.GetMeDTO:
+    properties:
+      user:
+        $ref: '#/definitions/iam.UserDTO'
+    type: object
+  iam.LoginRequest:
+    properties:
+      email:
+        example: subhajit@vyolayer.com
+        type: string
+      password:
+        example: Password!123
+        type: string
+    type: object
+  iam.RegisterRequest:
+    properties:
+      email:
+        example: subhajit@vyolayer.com
+        type: string
+      full_name:
+        example: Subhajit Pramanik
+        type: string
+      password:
+        example: Password!123
+        type: string
+    type: object
+  iam.ResendVerificationEmailRequest:
+    properties:
+      email:
+        example: subhajit@vyolayer.com
+        type: string
+    type: object
+  iam.UserDTO:
+    properties:
+      avatar:
+        $ref: '#/definitions/iam.AvatarDTO'
+      email:
+        type: string
+      full_name:
+        type: string
+      id:
+        type: string
+      is_email_verified:
+        type: boolean
+      joined_at:
+        type: string
+      status:
+        type: string
+    type: object
+  internal_gateway_handlers_apikey.CreateAPIKeyRequest:
+    properties:
+      description:
+        type: string
+      environment:
+        type: string
+      expires_at:
+        type: string
+      name:
+        type: string
+      scopes:
+        items:
+          type: string
+        type: array
+    type: object
+  internal_gateway_handlers_tenant.CreateOrganizationResponse:
+    properties:
+      description:
+        type: string
+      name:
+        type: string
+    type: object
+  internal_gateway_handlers_tenant.InvitedBy:
+    properties:
+      email:
+        type: string
+      full_name:
+        type: string
+      member_id:
+        type: string
+    type: object
+  internal_gateway_handlers_tenant.ListOrganizationInvitationsForOrgResponse:
+    properties:
+      invitations:
+        items:
+          $ref: '#/definitions/internal_gateway_handlers_tenant.OrganizationInvitationForOrg'
+        type: array
+    type: object
+  internal_gateway_handlers_tenant.ListOrganizationInvitationsResponse:
+    properties:
+      invitations:
+        items:
+          $ref: '#/definitions/internal_gateway_handlers_tenant.OrganizationInvitation'
+        type: array
+    type: object
+  internal_gateway_handlers_tenant.ListOrganizationMembersResponse:
+    properties:
+      members:
+        items:
+          $ref: '#/definitions/internal_gateway_handlers_tenant.OrganizationMember'
+        type: array
+      total_count:
+        type: integer
+    type: object
+  internal_gateway_handlers_tenant.ListOrganizationsResponse:
+    properties:
+      next_page_token:
+        type: string
+      organizations:
+        items:
+          $ref: '#/definitions/internal_gateway_handlers_tenant.Organization'
+        type: array
+      total_count:
+        type: integer
+    type: object
+  internal_gateway_handlers_tenant.ListProjectMembersResponse:
+    properties:
+      members:
+        items:
+          $ref: '#/definitions/internal_gateway_handlers_tenant.ProjectMember'
+        type: array
+      next_page_token:
+        type: string
+      total_count:
+        type: integer
+    type: object
+  internal_gateway_handlers_tenant.ListProjectsResponse:
+    properties:
+      next_page_token:
+        type: string
+      projects:
+        items:
+          $ref: '#/definitions/internal_gateway_handlers_tenant.Project'
+        type: array
+      total_count:
+        type: integer
+    type: object
+  internal_gateway_handlers_tenant.OnboardOrganizationResponse:
+    properties:
+      members:
+        items:
+          $ref: '#/definitions/internal_gateway_handlers_tenant.OrganizationMember'
+        type: array
+      organization:
+        $ref: '#/definitions/internal_gateway_handlers_tenant.Organization'
+    type: object
+  internal_gateway_handlers_tenant.Organization:
+    properties:
+      created_at:
+        type: string
+      description:
+        type: string
+      id:
+        type: string
+      is_active:
+        type: boolean
+      max_members:
+        type: integer
+      max_projects:
+        type: integer
+      member_count:
+        type: integer
+      name:
+        type: string
+      owner_id:
+        type: string
+      project_count:
+        type: integer
+      slug:
+        type: string
+      updated_at:
+        type: string
+    type: object
+  internal_gateway_handlers_tenant.OrganizationInvitation:
+    properties:
+      accepted_at:
+        type: string
+      email:
+        type: string
+      expired_at:
+        type: string
+      id:
+        type: string
+      invited_at:
+        type: string
+      invited_by:
+        type: string
+      is_accepted:
+        type: boolean
+      is_pending:
+        type: boolean
+      organization_id:
+        type: string
+      role_ids:
+        items:
+          type: string
+        type: array
+    type: object
+  internal_gateway_handlers_tenant.OrganizationInvitationForOrg:
+    properties:
+      invitation:
+        $ref: '#/definitions/internal_gateway_handlers_tenant.OrganizationInvitation'
+      invited_by:
+        $ref: '#/definitions/internal_gateway_handlers_tenant.InvitedBy'
+    type: object
+  internal_gateway_handlers_tenant.OrganizationMember:
+    properties:
+      deactivated_at:
+        type: string
+      deactivated_by:
+        type: string
+      email:
+        type: string
+      full_name:
+        type: string
+      id:
+        type: string
+      invited_at:
+        type: string
+      invited_by:
+        type: string
+      joined_at:
+        type: string
+      organization_id:
+        type: string
+      roles:
+        items:
+          type: string
+        type: array
+      status:
+        type: string
+      user_id:
+        type: string
+    type: object
+  internal_gateway_handlers_tenant.OrganizationMemberWithRBACResponse:
+    properties:
+      deactivated_at:
+        type: string
+      deactivated_by:
+        type: string
+      email:
+        type: string
+      full_name:
+        type: string
+      id:
+        type: string
+      invited_at:
+        type: string
+      invited_by:
+        type: string
+      joined_at:
+        type: string
+      organization_id:
+        type: string
+      perms:
+        items:
+          type: string
+        type: array
+      roles:
+        items:
+          type: string
+        type: array
+      status:
+        type: string
+      user_id:
+        type: string
+    type: object
+  internal_gateway_handlers_tenant.OrganizationPerm:
+    properties:
+      action:
+        type: string
+      code:
+        type: string
+      group:
+        type: string
+      id:
+        type: string
+      is_system_perm:
+        type: boolean
+      resource:
+        type: string
+    type: object
+  internal_gateway_handlers_tenant.OrganizationRole:
+    properties:
+      description:
+        type: string
+      id:
+        type: string
+      is_default:
+        type: boolean
+      is_system_role:
+        type: boolean
+      name:
+        type: string
+    type: object
+  internal_gateway_handlers_tenant.Project:
+    properties:
+      created_at:
+        type: string
+      created_by:
+        type: string
+      description:
+        type: string
+      id:
+        type: string
+      is_active:
+        type: boolean
+      max_api_keys:
+        type: integer
+      max_members:
+        type: integer
+      member_count:
+        type: integer
+      name:
+        type: string
+      organization_id:
+        type: string
+      slug:
+        type: string
+    type: object
+  internal_gateway_handlers_tenant.ProjectMember:
+    properties:
+      email:
+        type: string
+      full_name:
+        type: string
+      id:
+        type: string
+      is_active:
+        type: boolean
+      joined_at:
+        type: string
+      removed_at:
+        type: string
+      role:
+        type: string
+      user_id:
+        type: string
+    type: object
+  response.Meta:
+    properties:
+      limit:
+        example: 10
+        type: integer
+      page:
+        example: 1
+        type: integer
+      requestId:
+        example: req-123456
+        type: string
+      timestamp:
+        example: "2026-02-08T18:30:00Z"
+        type: string
+      total:
+        example: 100
+        type: integer
+      totalPages:
+        example: 10
+        type: integer
+    type: object
+  response.SuccessResponse:
+    properties:
+      data: {}
+      message:
+        example: Operation successful
+        type: string
+      meta:
+        $ref: '#/definitions/response.Meta'
+      statusCode:
+        example: 200
+        type: integer
+      success:
+        example: true
+        type: boolean
+    type: object
+  tenantV1.AddProjectMemberRequest:
+    properties:
+      organization_id:
+        type: string
+      project_id:
+        type: string
+      role:
+        type: string
+      user_id:
+        type: string
+    type: object
+  tenantV1.ArchiveOrganizationRequest:
+    properties:
+      confirm_name:
+        type: string
+      organization_id:
+        type: string
+    type: object
+  tenantV1.ChangeProjectMemberRoleRequest:
+    properties:
+      member_id:
+        type: string
+      organization_id:
+        type: string
+      project_id:
+        type: string
+      role:
+        type: string
+    type: object
+  tenantV1.CreateInvitationRequest:
+    properties:
+      email:
+        type: string
+      organization_id:
+        type: string
+      role_ids:
+        items:
+          type: string
+        type: array
+    type: object
+  tenantV1.CreateOrganizationRequest:
+    properties:
+      description:
+        type: string
+      name:
+        type: string
+    type: object
+  tenantV1.CreateProjectRequest:
+    properties:
+      description:
+        type: string
+      name:
+        type: string
+      organization_id:
+        type: string
+    type: object
+  tenantV1.DeleteOrganizationRequest:
+    properties:
+      confirm_name:
+        type: string
+      organization_id:
+        type: string
+    type: object
+  tenantV1.DeleteProjectRequest:
+    properties:
+      confirm_name:
+        type: string
+      organization_id:
+        type: string
+      project_id:
+        type: string
+    type: object
+  tenantV1.TransferOwnershipRequest:
+    properties:
+      confirm_name:
+        type: string
+      new_owner_member_id:
+        type: string
+      organization_id:
+        type: string
+    type: object
+  tenantV1.UpdateOrganizationRequest:
+    properties:
+      description:
+        type: string
+      name:
+        type: string
+      organization_id:
+        type: string
+    type: object
+  tenantV1.UpdateProjectRequest:
+    properties:
+      description:
+        type: string
+      name:
+        type: string
+      organization_id:
+        type: string
+      project_id:
+        type: string
+    type: object
+host: localhost:8080
+info:
+  contact: {}
+  description: This is the API Gateway for VyoLayer
+  title: VyoLayer Gateway API
+  version: "1.0"
+paths:
+  /account/change-password:
+    post:
+      consumes:
+      - application/json
+      description: Change the user's password
+      parameters:
+      - description: Change Password details
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/account.ChangePasswordRequestDTO'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.SuccessResponse'
+      security:
+      - BearerAuth: []
+      summary: Change Password
+      tags:
+      - Account
+  /account/forgot-password:
+    post:
+      consumes:
+      - application/json
+      description: Send a password reset email
+      parameters:
+      - description: Forgot Password details
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/account.ForgotPasswordRequestDTO'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.SuccessResponse'
+      summary: Forgot Password
+      tags:
+      - Account
+  /account/resend-verification-email:
+    post:
+      consumes:
+      - application/json
+      description: Resend the email verification link
+      parameters:
+      - description: Email details
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/account.ResendVerificationEmailRequestDTO'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.SuccessResponse'
+      summary: Resend Verification Email
+      tags:
+      - Account
+  /account/reset-password:
+    post:
+      consumes:
+      - application/json
+      description: Reset the user's password using a token
+      parameters:
+      - description: Reset token
+        in: query
+        name: token
+        required: true
+        type: string
+      - description: Reset Password details
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/account.ResetPasswordRequestDTO'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.SuccessResponse'
+      summary: Reset Password
+      tags:
+      - Account
+  /account/sessions:
+    get:
+      consumes:
+      - application/json
+      description: List all active sessions for the authenticated user
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.SuccessResponse'
+            - properties:
+                data:
+                  $ref: '#/definitions/account.AllSessionsResponseDTO'
+              type: object
+      security:
+      - BearerAuth: []
+      summary: List Sessions
+      tags:
+      - Account
+  /account/sessions/refresh:
+    post:
+      consumes:
+      - application/json
+      description: Refresh the access token using the refresh token cookie
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.SuccessResponse'
+            - properties:
+                data:
+                  $ref: '#/definitions/account.RefreshSessionResponseDTO'
+              type: object
+      summary: Refresh Token
+      tags:
+      - Account
+  /account/sessions/revoke:
+    post:
+      consumes:
+      - application/json
+      description: Revoke a specific session
+      parameters:
+      - description: Session ID
+        in: query
+        name: session_id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.SuccessResponse'
+      security:
+      - BearerAuth: []
+      summary: Revoke Session
+      tags:
+      - Account
+  /account/sessions/revoke-all:
+    post:
+      consumes:
+      - application/json
+      description: Revoke all sessions for the authenticated user
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.SuccessResponse'
+      security:
+      - BearerAuth: []
+      summary: Revoke All Sessions
+      tags:
+      - Account
+  /account/sign-in:
+    post:
+      consumes:
+      - application/json
+      description: Authenticate user and return session tokens
+      parameters:
+      - description: Login credentials
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/account.LoginRequestDTO'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.SuccessResponse'
+            - properties:
+                data:
+                  $ref: '#/definitions/account.LoginResponseDTO'
+              type: object
+      summary: User Login
+      tags:
+      - Account
+  /account/sign-out:
+    post:
+      consumes:
+      - application/json
+      description: Logout user and clear session cookies
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.SuccessResponse'
+      security:
+      - BearerAuth: []
+      summary: User Logout
+      tags:
+      - Account
+  /account/sign-up:
+    post:
+      consumes:
+      - application/json
+      description: Register a new user account
+      parameters:
+      - description: Registration details
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/account.RegisterRequestDTO'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.SuccessResponse'
+            - properties:
+                data:
+                  $ref: '#/definitions/account.RegisterResponseDTO'
+              type: object
+      summary: Register User
+      tags:
+      - Account
+  /account/validate:
+    post:
+      consumes:
+      - application/json
+      description: Validate the current access token session
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.SuccessResponse'
+      security:
+      - BearerAuth: []
+      summary: Validate Session
+      tags:
+      - Account
+  /account/verify-email:
+    post:
+      consumes:
+      - application/json
+      description: Verify a user's email with a token
+      parameters:
+      - description: Verification token
+        in: query
+        name: token
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.SuccessResponse'
+      summary: Verify Email
+      tags:
+      - Account
+  /api-keys:
+    get:
+      consumes:
+      - application/json
+      description: List all API keys for a project
+      parameters:
+      - description: Organization ID
+        in: query
+        name: orgId
+        required: true
+        type: string
+      - description: Project ID
+        in: query
+        name: projectId
+        required: true
+        type: string
+      - description: Page number
+        in: query
+        name: page
+        type: integer
+      - description: Page limit
+        in: query
+        name: limit
+        type: integer
+      - description: Status filter
+        in: query
+        name: status
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.SuccessResponse'
+            - properties:
+                data:
+                  $ref: '#/definitions/apikey.ListAPIKeysDTO'
+              type: object
+      security:
+      - BearerAuth: []
+      summary: List API Keys
+      tags:
+      - API Keys
+    post:
+      consumes:
+      - application/json
+      description: Create a new API key for a project
+      parameters:
+      - description: Organization ID
+        in: query
+        name: orgId
+        required: true
+        type: string
+      - description: Project ID
+        in: query
+        name: projectId
+        required: true
+        type: string
+      - description: API Key details
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/internal_gateway_handlers_apikey.CreateAPIKeyRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.SuccessResponse'
+            - properties:
+                data:
+                  $ref: '#/definitions/apikey.CreateAPIKeyDTO'
+              type: object
+      security:
+      - BearerAuth: []
+      summary: Create API Key
+      tags:
+      - API Keys
+  /api-keys/{apiKeyID}:
+    get:
+      consumes:
+      - application/json
+      description: Get details of a specific API key
+      parameters:
+      - description: Organization ID
+        in: query
+        name: orgId
+        required: true
+        type: string
+      - description: Project ID
+        in: query
+        name: projectId
+        required: true
+        type: string
+      - description: API Key ID
+        in: path
+        name: apiKeyID
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.SuccessResponse'
+            - properties:
+                data:
+                  $ref: '#/definitions/apikey.GetAPIKeyDTO'
+              type: object
+      security:
+      - BearerAuth: []
+      summary: Get API Key
+      tags:
+      - API Keys
+  /api-keys/{apiKeyID}/revoke:
+    delete:
+      consumes:
+      - application/json
+      description: Revoke a specific API key
+      parameters:
+      - description: Organization ID
+        in: query
+        name: orgId
+        required: true
+        type: string
+      - description: Project ID
+        in: query
+        name: projectId
+        required: true
+        type: string
+      - description: API Key ID
+        in: path
+        name: apiKeyID
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.SuccessResponse'
+            - properties:
+                data:
+                  $ref: '#/definitions/apikey.RevokeAPIKeyDTO'
+              type: object
+      security:
+      - BearerAuth: []
+      summary: Revoke API Key
+      tags:
+      - API Keys
+  /api-keys/{apiKeyID}/rotate:
+    patch:
+      consumes:
+      - application/json
+      description: Rotate a specific API key
+      parameters:
+      - description: Organization ID
+        in: query
+        name: orgId
+        required: true
+        type: string
+      - description: Project ID
+        in: query
+        name: projectId
+        required: true
+        type: string
+      - description: API Key ID
+        in: path
+        name: apiKeyID
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.SuccessResponse'
+            - properties:
+                data:
+                  $ref: '#/definitions/apikey.RotateAPIKeyDTO'
+              type: object
+      security:
+      - BearerAuth: []
+      summary: Rotate API Key
+      tags:
+      - API Keys
+  /api-keys/{apiKeyID}/validate:
+    get:
+      consumes:
+      - application/json
+      description: Validate if an API key is active
+      parameters:
+      - description: API Key ID
+        in: path
+        name: apiKeyID
+        required: true
+        type: string
+      - description: Validation details
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/apikey.ValidateAPIKeyRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.SuccessResponse'
+            - properties:
+                data:
+                  $ref: '#/definitions/apikey.ValidateAPIKeyDTO'
+              type: object
+      security:
+      - BearerAuth: []
+      summary: Validate API Key
+      tags:
+      - API Keys
+  /console/projects/{projectID}/services:
+    get:
+      consumes:
+      - application/json
+      description: List all services in a project
+      parameters:
+      - description: Project ID
+        in: path
+        name: projectID
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.SuccessResponse'
+            - properties:
+                data:
+                  items:
+                    $ref: '#/definitions/consoledto.ServiceManifestDTO'
+                  type: array
+              type: object
+      security:
+      - BearerAuth: []
+      summary: List Project Services
+      tags:
+      - Project Services
+  /console/projects/{projectID}/services/{serviceKey}:
+    get:
+      consumes:
+      - application/json
+      description: Get details of a project service by its key
+      parameters:
+      - description: Project ID
+        in: path
+        name: projectID
+        required: true
+        type: string
+      - description: Service Key
+        in: path
+        name: serviceKey
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.SuccessResponse'
+            - properties:
+                data:
+                  $ref: '#/definitions/consoledto.ServiceManifestWithResourcesDTO'
+              type: object
+      security:
+      - BearerAuth: []
+      summary: Get Project Service
+      tags:
+      - Project Services
+  /health:
+    get:
+      consumes:
+      - application/json
+      description: Returns the health status of the API Gateway
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.SuccessResponse'
+            - properties:
+                data:
+                  properties:
+                    status:
+                      type: string
+                    version:
+                      type: string
+                  type: object
+              type: object
+      summary: Check API Health
+      tags:
+      - Health
+  /iam/login:
+    post:
+      consumes:
+      - application/json
+      description: Authenticate user and return session tokens
+      parameters:
+      - description: Login credentials
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/iam.LoginRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.SuccessResponse'
+            - properties:
+                data:
+                  $ref: '#/definitions/iam.AuthSessionDTO'
+              type: object
+      summary: User Login
+      tags:
+      - IAM Auth
+  /iam/logout:
+    post:
+      consumes:
+      - application/json
+      description: Logout user and clear session cookies
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.SuccessResponse'
+      security:
+      - BearerAuth: []
+      summary: User Logout
+      tags:
+      - IAM Auth
+  /iam/me:
+    get:
+      consumes:
+      - application/json
+      description: Returns the authenticated user's profile
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.SuccessResponse'
+            - properties:
+                data:
+                  $ref: '#/definitions/iam.GetMeDTO'
+              type: object
+      security:
+      - BearerAuth: []
+      summary: Get Current Profile
+      tags:
+      - IAM Auth
+  /iam/refresh-session:
+    post:
+      consumes:
+      - application/json
+      description: Refresh the access token session
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.SuccessResponse'
+      summary: Refresh Session
+      tags:
+      - IAM Auth
+  /iam/register:
+    post:
+      consumes:
+      - application/json
+      description: Register a new user in IAM
+      parameters:
+      - description: Registration details
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/iam.RegisterRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/response.SuccessResponse'
+      summary: Register IAM User
+      tags:
+      - IAM Auth
+  /iam/resend-verification-email:
+    post:
+      consumes:
+      - application/json
+      description: Resend the email verification link
+      parameters:
+      - description: Email details
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/iam.ResendVerificationEmailRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.SuccessResponse'
+      summary: Resend Verification Email
+      tags:
+      - IAM Auth
+  /iam/verify-email:
+    post:
+      consumes:
+      - application/json
+      description: Verify a user's email with a token
+      parameters:
+      - description: Verification token
+        in: query
+        name: token
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.SuccessResponse'
+      summary: Verify Email
+      tags:
+      - IAM Auth
+  /organizations:
+    get:
+      consumes:
+      - application/json
+      description: List organizations the user belongs to
+      parameters:
+      - description: Page size
+        in: query
+        name: page_size
+        type: integer
+      - description: Page token
+        in: query
+        name: page_token
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.SuccessResponse'
+            - properties:
+                data:
+                  $ref: '#/definitions/internal_gateway_handlers_tenant.ListOrganizationsResponse'
+              type: object
+      security:
+      - BearerAuth: []
+      summary: List Organizations
+      tags:
+      - Organizations
+    post:
+      consumes:
+      - application/json
+      description: Create a new organization
+      parameters:
+      - description: Organization details
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/tenantV1.CreateOrganizationRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.SuccessResponse'
+            - properties:
+                data:
+                  $ref: '#/definitions/internal_gateway_handlers_tenant.CreateOrganizationResponse'
+              type: object
+      security:
+      - BearerAuth: []
+      summary: Create Organization
+      tags:
+      - Organizations
+  /organizations/{organizationID}:
+    delete:
+      consumes:
+      - application/json
+      description: Delete an organization completely
+      parameters:
+      - description: Organization ID
+        in: path
+        name: organizationID
+        required: true
+        type: string
+      - description: Delete request details
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/tenantV1.DeleteOrganizationRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.SuccessResponse'
+      security:
+      - BearerAuth: []
+      summary: Delete Organization
+      tags:
+      - Organizations
+    get:
+      consumes:
+      - application/json
+      description: Get organization details by ID
+      parameters:
+      - description: Organization ID
+        in: path
+        name: organizationID
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.SuccessResponse'
+            - properties:
+                data:
+                  $ref: '#/definitions/internal_gateway_handlers_tenant.Organization'
+              type: object
+      security:
+      - BearerAuth: []
+      summary: Get Organization by ID
+      tags:
+      - Organizations
+    patch:
+      consumes:
+      - application/json
+      description: Update an existing organization
+      parameters:
+      - description: Organization ID
+        in: path
+        name: organizationID
+        required: true
+        type: string
+      - description: Update details
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/tenantV1.UpdateOrganizationRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.SuccessResponse'
+            - properties:
+                data:
+                  $ref: '#/definitions/internal_gateway_handlers_tenant.Organization'
+              type: object
+      security:
+      - BearerAuth: []
+      summary: Update Organization
+      tags:
+      - Organizations
+  /organizations/{organizationID}/archive:
+    delete:
+      consumes:
+      - application/json
+      description: Archive an organization
+      parameters:
+      - description: Organization ID
+        in: path
+        name: organizationID
+        required: true
+        type: string
+      - description: Archive request details
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/tenantV1.ArchiveOrganizationRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.SuccessResponse'
+      security:
+      - BearerAuth: []
+      summary: Archive Organization
+      tags:
+      - Organizations
+  /organizations/{organizationID}/invitations:
+    get:
+      consumes:
+      - application/json
+      description: List invitations for an organization
+      parameters:
+      - description: Organization ID
+        in: path
+        name: organizationID
+        required: true
+        type: string
+      - description: Page size
+        in: query
+        name: page_size
+        type: integer
+      - description: Page token
+        in: query
+        name: page_token
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.SuccessResponse'
+            - properties:
+                data:
+                  $ref: '#/definitions/internal_gateway_handlers_tenant.ListOrganizationInvitationsResponse'
+              type: object
+      security:
+      - BearerAuth: []
+      summary: List Organization Invitations
+      tags:
+      - Organization Invitations
+    post:
+      consumes:
+      - application/json
+      description: Invite a user to an organization
+      parameters:
+      - description: Organization ID
+        in: path
+        name: organizationID
+        required: true
+        type: string
+      - description: Invitation details
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/tenantV1.CreateInvitationRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/response.SuccessResponse'
+      security:
+      - BearerAuth: []
+      summary: Create Organization Invitation
+      tags:
+      - Organization Invitations
+  /organizations/{organizationID}/invitations/{invitationID}:
+    delete:
+      consumes:
+      - application/json
+      description: Cancel a pending invitation by its ID
+      parameters:
+      - description: Organization ID
+        in: path
+        name: organizationID
+        required: true
+        type: string
+      - description: Invitation ID
+        in: path
+        name: invitationID
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.SuccessResponse'
+      security:
+      - BearerAuth: []
+      summary: Cancel Organization Invitation
+      tags:
+      - Organization Invitations
+  /organizations/{organizationID}/invitations/pending:
+    get:
+      consumes:
+      - application/json
+      description: Get all pending invitations for the specified organization
+      parameters:
+      - description: Organization ID
+        in: path
+        name: organizationID
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.SuccessResponse'
+            - properties:
+                data:
+                  $ref: '#/definitions/internal_gateway_handlers_tenant.ListOrganizationInvitationsForOrgResponse'
+              type: object
+      security:
+      - BearerAuth: []
+      summary: Get Pending Invitations by Organization
+      tags:
+      - Organization Invitations
+  /organizations/{organizationID}/members:
+    get:
+      consumes:
+      - application/json
+      description: List all members in the organization
+      parameters:
+      - description: Organization ID
+        in: path
+        name: organizationID
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.SuccessResponse'
+            - properties:
+                data:
+                  $ref: '#/definitions/internal_gateway_handlers_tenant.ListOrganizationMembersResponse'
+              type: object
+      security:
+      - BearerAuth: []
+      summary: List Organization Members
+      tags:
+      - Organization Members
+  /organizations/{organizationID}/members/{memberID}:
+    delete:
+      consumes:
+      - application/json
+      description: Remove a member from the organization
+      parameters:
+      - description: Organization ID
+        in: path
+        name: organizationID
+        required: true
+        type: string
+      - description: Member ID
+        in: path
+        name: memberID
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.SuccessResponse'
+      security:
+      - BearerAuth: []
+      summary: Remove Organization Member
+      tags:
+      - Organization Members
+    get:
+      consumes:
+      - application/json
+      description: Get details of a specific organization member
+      parameters:
+      - description: Organization ID
+        in: path
+        name: organizationID
+        required: true
+        type: string
+      - description: Member ID
+        in: path
+        name: memberID
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.SuccessResponse'
+            - properties:
+                data:
+                  $ref: '#/definitions/internal_gateway_handlers_tenant.OrganizationMember'
+              type: object
+      security:
+      - BearerAuth: []
+      summary: Get Organization Member
+      tags:
+      - Organization Members
+  /organizations/{organizationID}/members/me:
+    get:
+      consumes:
+      - application/json
+      description: Get details of the currently authenticated member
+      parameters:
+      - description: Organization ID
+        in: path
+        name: organizationID
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.SuccessResponse'
+            - properties:
+                data:
+                  $ref: '#/definitions/internal_gateway_handlers_tenant.OrganizationMemberWithRBACResponse'
+              type: object
+      security:
+      - BearerAuth: []
+      summary: Get Current Organization Member
+      tags:
+      - Organization Members
+  /organizations/{organizationID}/permissions:
+    get:
+      consumes:
+      - application/json
+      description: Get all permissions for the organization
+      parameters:
+      - description: Organization ID
+        in: path
+        name: organizationID
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.SuccessResponse'
+            - properties:
+                data:
+                  items:
+                    $ref: '#/definitions/internal_gateway_handlers_tenant.OrganizationPerm'
+                  type: array
+              type: object
+      security:
+      - BearerAuth: []
+      summary: List Organization Permissions
+      tags:
+      - Organizations
+  /organizations/{organizationID}/projects:
+    get:
+      consumes:
+      - application/json
+      description: List projects within an organization
+      parameters:
+      - description: Organization ID
+        in: path
+        name: organizationID
+        required: true
+        type: string
+      - description: Page size
+        in: query
+        name: page_size
+        type: integer
+      - description: Page token
+        in: query
+        name: page_token
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.SuccessResponse'
+            - properties:
+                data:
+                  $ref: '#/definitions/internal_gateway_handlers_tenant.ListProjectsResponse'
+              type: object
+      security:
+      - BearerAuth: []
+      summary: List Projects
+      tags:
+      - Projects
+    post:
+      consumes:
+      - application/json
+      description: Create a new project within an organization
+      parameters:
+      - description: Organization ID
+        in: path
+        name: organizationID
+        required: true
+        type: string
+      - description: Project details
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/tenantV1.CreateProjectRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.SuccessResponse'
+            - properties:
+                data:
+                  $ref: '#/definitions/internal_gateway_handlers_tenant.Project'
+              type: object
+      security:
+      - BearerAuth: []
+      summary: Create Project
+      tags:
+      - Projects
+  /organizations/{organizationID}/projects/{projectID}:
+    delete:
+      consumes:
+      - application/json
+      description: Delete a project
+      parameters:
+      - description: Organization ID
+        in: path
+        name: organizationID
+        required: true
+        type: string
+      - description: Project ID
+        in: path
+        name: projectID
+        required: true
+        type: string
+      - description: Delete details
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/tenantV1.DeleteProjectRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.SuccessResponse'
+      security:
+      - BearerAuth: []
+      summary: Delete Project
+      tags:
+      - Projects
+    get:
+      consumes:
+      - application/json
+      description: Get details of a specific project
+      parameters:
+      - description: Organization ID
+        in: path
+        name: organizationID
+        required: true
+        type: string
+      - description: Project ID
+        in: path
+        name: projectID
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.SuccessResponse'
+            - properties:
+                data:
+                  $ref: '#/definitions/internal_gateway_handlers_tenant.Project'
+              type: object
+      security:
+      - BearerAuth: []
+      summary: Get Project
+      tags:
+      - Projects
+    patch:
+      consumes:
+      - application/json
+      description: Update project details
+      parameters:
+      - description: Organization ID
+        in: path
+        name: organizationID
+        required: true
+        type: string
+      - description: Project ID
+        in: path
+        name: projectID
+        required: true
+        type: string
+      - description: Update details
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/tenantV1.UpdateProjectRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.SuccessResponse'
+            - properties:
+                data:
+                  $ref: '#/definitions/internal_gateway_handlers_tenant.Project'
+              type: object
+      security:
+      - BearerAuth: []
+      summary: Update Project
+      tags:
+      - Projects
+  /organizations/{organizationID}/projects/{projectID}/members:
+    get:
+      consumes:
+      - application/json
+      description: List members of a project
+      parameters:
+      - description: Organization ID
+        in: path
+        name: organizationID
+        required: true
+        type: string
+      - description: Project ID
+        in: path
+        name: projectID
+        required: true
+        type: string
+      - description: Page size
+        in: query
+        name: page_size
+        type: integer
+      - description: Page token
+        in: query
+        name: page_token
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.SuccessResponse'
+            - properties:
+                data:
+                  $ref: '#/definitions/internal_gateway_handlers_tenant.ListProjectMembersResponse'
+              type: object
+      security:
+      - BearerAuth: []
+      summary: List Project Members
+      tags:
+      - Project Members
+    post:
+      consumes:
+      - application/json
+      description: Add a member to a project
+      parameters:
+      - description: Organization ID
+        in: path
+        name: organizationID
+        required: true
+        type: string
+      - description: Project ID
+        in: path
+        name: projectID
+        required: true
+        type: string
+      - description: Member details
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/tenantV1.AddProjectMemberRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.SuccessResponse'
+            - properties:
+                data:
+                  $ref: '#/definitions/internal_gateway_handlers_tenant.ProjectMember'
+              type: object
+      security:
+      - BearerAuth: []
+      summary: Add Project Member
+      tags:
+      - Project Members
+  /organizations/{organizationID}/projects/{projectID}/members/{memberID}:
+    delete:
+      consumes:
+      - application/json
+      description: Remove a member from the project
+      parameters:
+      - description: Organization ID
+        in: path
+        name: organizationID
+        required: true
+        type: string
+      - description: Project ID
+        in: path
+        name: projectID
+        required: true
+        type: string
+      - description: Member ID
+        in: path
+        name: memberID
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.SuccessResponse'
+      security:
+      - BearerAuth: []
+      summary: Remove Project Member
+      tags:
+      - Project Members
+    get:
+      consumes:
+      - application/json
+      description: Get details of a project member
+      parameters:
+      - description: Organization ID
+        in: path
+        name: organizationID
+        required: true
+        type: string
+      - description: Project ID
+        in: path
+        name: projectID
+        required: true
+        type: string
+      - description: Member ID
+        in: path
+        name: memberID
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.SuccessResponse'
+            - properties:
+                data:
+                  $ref: '#/definitions/internal_gateway_handlers_tenant.ProjectMember'
+              type: object
+      security:
+      - BearerAuth: []
+      summary: Get Project Member
+      tags:
+      - Project Members
+  /organizations/{organizationID}/projects/{projectID}/members/{memberID}/role:
+    post:
+      consumes:
+      - application/json
+      description: Change the role of a project member
+      parameters:
+      - description: Organization ID
+        in: path
+        name: organizationID
+        required: true
+        type: string
+      - description: Project ID
+        in: path
+        name: projectID
+        required: true
+        type: string
+      - description: Member ID
+        in: path
+        name: memberID
+        required: true
+        type: string
+      - description: Role details
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/tenantV1.ChangeProjectMemberRoleRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.SuccessResponse'
+      security:
+      - BearerAuth: []
+      summary: Change Project Member Role
+      tags:
+      - Project Members
+  /organizations/{organizationID}/projects/{projectID}/members/leave:
+    delete:
+      consumes:
+      - application/json
+      description: Leave the project
+      parameters:
+      - description: Organization ID
+        in: path
+        name: organizationID
+        required: true
+        type: string
+      - description: Project ID
+        in: path
+        name: projectID
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.SuccessResponse'
+      security:
+      - BearerAuth: []
+      summary: Leave Project
+      tags:
+      - Project Members
+  /organizations/{organizationID}/projects/{projectID}/members/me:
+    get:
+      consumes:
+      - application/json
+      description: Get current user's membership details for the project
+      parameters:
+      - description: Organization ID
+        in: path
+        name: organizationID
+        required: true
+        type: string
+      - description: Project ID
+        in: path
+        name: projectID
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.SuccessResponse'
+            - properties:
+                data:
+                  $ref: '#/definitions/internal_gateway_handlers_tenant.ProjectMember'
+              type: object
+      security:
+      - BearerAuth: []
+      summary: Get Current Project Member
+      tags:
+      - Project Members
+  /organizations/{organizationID}/restore:
+    post:
+      consumes:
+      - application/json
+      description: Restore an archived organization
+      parameters:
+      - description: Organization ID
+        in: path
+        name: organizationID
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.SuccessResponse'
+      security:
+      - BearerAuth: []
+      summary: Restore Organization
+      tags:
+      - Organizations
+  /organizations/{organizationID}/roles:
+    get:
+      consumes:
+      - application/json
+      description: Get all roles for the organization
+      parameters:
+      - description: Organization ID
+        in: path
+        name: organizationID
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.SuccessResponse'
+            - properties:
+                data:
+                  items:
+                    $ref: '#/definitions/internal_gateway_handlers_tenant.OrganizationRole'
+                  type: array
+              type: object
+      security:
+      - BearerAuth: []
+      summary: List Organization Roles
+      tags:
+      - Organizations
+  /organizations/{organizationID}/transfer-ownership:
+    post:
+      consumes:
+      - application/json
+      description: Transfer the ownership of the organization
+      parameters:
+      - description: Organization ID
+        in: path
+        name: organizationID
+        required: true
+        type: string
+      - description: Transfer details
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/tenantV1.TransferOwnershipRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.SuccessResponse'
+      security:
+      - BearerAuth: []
+      summary: Transfer Organization Ownership
+      tags:
+      - Organizations
+  /organizations/invitations/accept:
+    post:
+      consumes:
+      - application/json
+      description: Accept an invitation using the token
+      parameters:
+      - description: Invitation token
+        in: query
+        name: token
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.SuccessResponse'
+      security:
+      - BearerAuth: []
+      summary: Accept Organization Invitation
+      tags:
+      - Organization Invitations
+  /organizations/invitations/pending:
+    get:
+      consumes:
+      - application/json
+      description: Get all pending invitations for the authenticated user
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.SuccessResponse'
+            - properties:
+                data:
+                  $ref: '#/definitions/internal_gateway_handlers_tenant.ListOrganizationInvitationsResponse'
+              type: object
+      security:
+      - BearerAuth: []
+      summary: Get Pending Invitations for User
+      tags:
+      - Organization Invitations
+  /organizations/onboarding:
+    post:
+      consumes:
+      - application/json
+      description: Onboard a new organization (for new users)
+      parameters:
+      - description: Organization details
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/tenantV1.CreateOrganizationRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.SuccessResponse'
+            - properties:
+                data:
+                  $ref: '#/definitions/internal_gateway_handlers_tenant.OnboardOrganizationResponse'
+              type: object
+      security:
+      - BearerAuth: []
+      summary: Onboard Organization
+      tags:
+      - Organizations
+  /organizations/slug/{slug}:
+    get:
+      consumes:
+      - application/json
+      description: Get organization details by its unique slug
+      parameters:
+      - description: Organization Slug
+        in: path
+        name: slug
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.SuccessResponse'
+            - properties:
+                data:
+                  $ref: '#/definitions/internal_gateway_handlers_tenant.Organization'
+              type: object
+      security:
+      - BearerAuth: []
+      summary: Get Organization by Slug
+      tags:
+      - Organizations
+securityDefinitions:
+  BearerAuth:
+    in: header
+    name: Authorization
+    type: apiKey
+swagger: "2.0"

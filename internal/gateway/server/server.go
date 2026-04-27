@@ -6,9 +6,12 @@ import (
 	"os"
 	"os/signal"
 	"syscall"
+	"time"
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/cors"
+	"github.com/gofiber/swagger"
+	"github.com/vyolayer/vyolayer/internal/gateway/middleware"
 	m "github.com/vyolayer/vyolayer/internal/gateway/middleware"
 	gm "github.com/vyolayer/vyolayer/internal/shared/middleware"
 )
@@ -39,6 +42,8 @@ func New(port string) *Server {
 	// Inject custom middleware to propagate headers to gRPC requests
 	app.Use(m.GRPCMetadataMiddleware())
 
+	app.Get("/swagger/*", swagger.HandlerDefault)
+
 	return &Server{
 		app:  app,
 		port: port,
@@ -48,6 +53,9 @@ func New(port string) *Server {
 // RegisterRegistrars allows appending groups of routes (OCP)
 func (s *Server) RegisterRegistrars(registrars ...RouteRegistrar) {
 	v1 := s.app.Group("/v1")
+	rateLimiter := middleware.NewRateLimiter(100, 5*time.Minute, "global")
+	v1.Use(rateLimiter.Handler())
+
 	for _, registrar := range registrars {
 		registrar.RegisterRoutes(v1)
 	}

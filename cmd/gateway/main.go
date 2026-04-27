@@ -4,6 +4,8 @@ import (
 	"log"
 	"time"
 
+	_ "github.com/vyolayer/vyolayer/docs/gateway" // Swagger docs
+
 	"github.com/gofiber/fiber/v2"
 	"github.com/joho/godotenv"
 	"github.com/vyolayer/vyolayer/internal/gateway/config"
@@ -20,6 +22,14 @@ const (
 	grpcTimeout       = 10 * time.Second
 )
 
+// @title VyoLayer Gateway API
+// @version 1.0
+// @description This is the API Gateway for VyoLayer
+// @host localhost:8080
+// @BasePath /v1
+// @securityDefinitions.apikey BearerAuth
+// @in header
+// @name Authorization
 func main() {
 	if err := run(); err != nil {
 		log.Fatalf("gateway error: %v", err)
