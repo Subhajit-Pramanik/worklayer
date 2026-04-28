@@ -57,6 +57,7 @@ func (r *repository) List(
 		Where("organization_id = ?", organizationID).
 		Where("project_id = ?", projectID).
 		Order("created_at desc").
+		Preload("Scopes").
 		Find(&items).Error
 
 	return items, err
@@ -75,6 +76,7 @@ func (r *repository) Get(
 		Where("id = ?", id).
 		Where("organization_id = ?", organizationID).
 		Where("project_id = ?", projectID).
+		Preload("Scopes").
 		First(&item).Error
 
 	if err != nil {

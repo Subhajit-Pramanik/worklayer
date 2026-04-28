@@ -69,6 +69,8 @@ type APIKey struct {
 	CreatedAt time.Time      `gorm:"<-:create;type:timestamp;default:CURRENT_TIMESTAMP"`
 	UpdatedAt time.Time      `gorm:"<-:update;type:timestamp;default:CURRENT_TIMESTAMP"`
 	DeletedAt gorm.DeletedAt `gorm:"index"`
+
+	Scopes []APIKeyScope `gorm:"foreignKey:ApiKeyID"`
 }
 
 func (APIKey) TableName() string {

@@ -8,7 +8,7 @@ import (
 	"google.golang.org/protobuf/types/known/timestamppb"
 )
 
-func toProtoAPIKey(m *model.APIKey, scopes []string) *apikeyv1.APIKey {
+func toProtoAPIKey(m *model.APIKey) *apikeyv1.APIKey {
 	if m == nil {
 		return nil
 	}
@@ -22,12 +22,17 @@ func toProtoAPIKey(m *model.APIKey, scopes []string) *apikeyv1.APIKey {
 		Prefix:         m.Prefix,
 		Environment:    m.Environment,
 		Status:         m.Status,
-		Scopes:         scopes,
 		CreatedBy:      m.CreatedBy.String(),
 		LastUsedIp:     m.LastUsedIP,
 		LastUsedUa:     m.LastUsedUA,
 		CreatedAt:      toProtoTS(m.CreatedAt),
 		UpdatedAt:      toProtoTS(m.UpdatedAt),
+	}
+
+	if len(m.Scopes) > 0 {
+		for _, scope := range m.Scopes {
+			out.Scopes = append(out.Scopes, scope.Scope)
+		}
 	}
 
 	if m.LastUsedAt != nil {

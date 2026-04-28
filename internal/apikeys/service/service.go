@@ -65,7 +65,17 @@ func (s *service) List(
 	organizationID uuid.UUID,
 	projectID uuid.UUID,
 ) ([]model.APIKey, error) {
-	return s.repo.List(ctx, organizationID, projectID)
+
+	apiKeys, err := s.repo.List(ctx, organizationID, projectID)
+	if err != nil {
+		return nil, err
+	}
+
+	if len(apiKeys) == 0 {
+		return nil, nil
+	}
+
+	return apiKeys, nil
 }
 
 func (s *service) Get(

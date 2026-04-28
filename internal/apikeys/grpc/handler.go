@@ -43,7 +43,7 @@ func (s *Server) CreateAPIKey(
 	}
 
 	return &pb.CreateAPIKeyResponse{
-		ApiKey: toProtoAPIKey(item, req.Scopes),
+		ApiKey: toProtoAPIKey(item),
 		Secret: secret,
 	}, nil
 }
@@ -63,7 +63,7 @@ func (s *Server) ListAPIKeys(
 
 	out := make([]*pb.APIKey, 0, len(items))
 	for _, it := range items {
-		out = append(out, toProtoAPIKey(&it, nil))
+		out = append(out, toProtoAPIKey(&it))
 	}
 
 	return &pb.ListAPIKeysResponse{
@@ -86,7 +86,7 @@ func (s *Server) GetAPIKey(
 	}
 
 	return &pb.GetAPIKeyResponse{
-		ApiKey: toProtoAPIKey(item, nil),
+		ApiKey: toProtoAPIKey(item),
 	}, nil
 }
 
@@ -126,7 +126,7 @@ func (s *Server) RotateAPIKey(
 	}
 
 	return &pb.RotateAPIKeyResponse{
-		ApiKey: toProtoAPIKey(item, nil),
+		ApiKey: toProtoAPIKey(item),
 		Secret: secret,
 	}, nil
 }
@@ -143,7 +143,7 @@ func (s *Server) ValidateAPIKey(
 
 	return &pb.ValidateAPIKeyResponse{
 		Valid:  ok,
-		ApiKey: toProtoAPIKey(item, scopes),
+		ApiKey: toProtoAPIKey(item),
 		Scopes: scopes,
 	}, nil
 }
