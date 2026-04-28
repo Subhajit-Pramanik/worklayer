@@ -61,6 +61,10 @@ func (h *IAMAuthHandler) Logout(ctx context.Context, req *iAMV1.LogoutRequest) (
 	return &iAMV1.IAMSuccessResponse{Message: "logged out successfully"}, nil
 }
 
+func (h *IAMAuthHandler) ValidateSession(ctx context.Context, req *iAMV1.ValidateSessionRequest) (*iAMV1.ValidateSessionResponse, error) {
+	return h.au.ValidateSession(ctx, req)
+}
+
 // ── Password flow ──────────────────────────────────────────────────────────────
 
 func (h *IAMAuthHandler) ChangePassword(ctx context.Context, req *iAMV1.ChangePasswordRequest) (*iAMV1.IAMSuccessResponse, error) {

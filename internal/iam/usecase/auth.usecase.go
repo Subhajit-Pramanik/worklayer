@@ -236,6 +236,30 @@ func (uc *AuthUsecase) Logout(ctx context.Context, req *iAMV1.LogoutRequest) err
 	return nil
 }
 
+func (uc *AuthUsecase) ValidateSession(ctx context.Context, req *iAMV1.ValidateSessionRequest) (*iAMV1.ValidateSessionResponse, error) {
+	userJWT, err := uc.ss.VerifyAccessToken(req.GetAccessToken())
+	if err != nil {
+		return &iAMV1.ValidateSessionResponse{IsValid: false}, nil
+	}
+
+	user, err := uc.ur.FindByID(ctx, userJWT.UserID)
+	if err != nil {
+		return &iAMV1.ValidateSessionResponse{IsValid: false}, nil
+	}
+
+	return &iAMV1.ValidateSessionResponse{
+		User: &iAMV1.User{
+			Id:              user.GetID().String(),
+			Email:           user.GetEmail(),
+			FullName:        user.GetFullName(),
+			Status:          user.GetStatus(),
+			IsEmailVerified: user.IsEmailVerified,
+			JoinedAt:        user.Timestamps.CreatedAt.UTC().Format(time.RFC3339),
+		},
+		IsValid: true,
+	}, nil
+}
+
 // ── Password flow ──────────────────────────────────────────────────────────────
 
 // ChangePassword validates the old password and applies the new one.

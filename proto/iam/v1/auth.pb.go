@@ -603,11 +603,107 @@ func (x *ResetPasswordRequest) GetConfirmPassword() string {
 	return ""
 }
 
+type ValidateSessionRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	AccessToken   string                 `protobuf:"bytes,1,opt,name=access_token,json=accessToken,proto3" json:"access_token,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ValidateSessionRequest) Reset() {
+	*x = ValidateSessionRequest{}
+	mi := &file_iam_v1_auth_proto_msgTypes[11]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ValidateSessionRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ValidateSessionRequest) ProtoMessage() {}
+
+func (x *ValidateSessionRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_iam_v1_auth_proto_msgTypes[11]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ValidateSessionRequest.ProtoReflect.Descriptor instead.
+func (*ValidateSessionRequest) Descriptor() ([]byte, []int) {
+	return file_iam_v1_auth_proto_rawDescGZIP(), []int{11}
+}
+
+func (x *ValidateSessionRequest) GetAccessToken() string {
+	if x != nil {
+		return x.AccessToken
+	}
+	return ""
+}
+
+type ValidateSessionResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	User          *User                  `protobuf:"bytes,1,opt,name=user,proto3" json:"user,omitempty"`
+	IsValid       bool                   `protobuf:"varint,2,opt,name=is_valid,json=isValid,proto3" json:"is_valid,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ValidateSessionResponse) Reset() {
+	*x = ValidateSessionResponse{}
+	mi := &file_iam_v1_auth_proto_msgTypes[12]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ValidateSessionResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ValidateSessionResponse) ProtoMessage() {}
+
+func (x *ValidateSessionResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_iam_v1_auth_proto_msgTypes[12]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ValidateSessionResponse.ProtoReflect.Descriptor instead.
+func (*ValidateSessionResponse) Descriptor() ([]byte, []int) {
+	return file_iam_v1_auth_proto_rawDescGZIP(), []int{12}
+}
+
+func (x *ValidateSessionResponse) GetUser() *User {
+	if x != nil {
+		return x.User
+	}
+	return nil
+}
+
+func (x *ValidateSessionResponse) GetIsValid() bool {
+	if x != nil {
+		return x.IsValid
+	}
+	return false
+}
+
 var File_iam_v1_auth_proto protoreflect.FileDescriptor
 
 const file_iam_v1_auth_proto_rawDesc = "" +
 	"\n" +
-	"\x11iam/v1/auth.proto\x12\x06iam.v1\x1a\x1bbuf/validate/validate.proto\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\x13iam/v1/common.proto\"\x7f\n" +
+	"\x11iam/v1/auth.proto\x12\x06iam.v1\x1a\x1bbuf/validate/validate.proto\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\x13iam/v1/common.proto\x1a\x11iam/v1/user.proto\"\x7f\n" +
 	"\x0fRegisterRequest\x12\x1d\n" +
 	"\x05email\x18\x01 \x01(\tB\a\xbaH\x04r\x02`\x01R\x05email\x12%\n" +
 	"\bpassword\x18\x02 \x01(\tB\t\xbaH\x06r\x04\x10\b\x18\x14R\bpassword\x12&\n" +
@@ -641,7 +737,12 @@ const file_iam_v1_auth_proto_rawDesc = "" +
 	"\x14ResetPasswordRequest\x12\x1d\n" +
 	"\x05token\x18\x01 \x01(\tB\a\xbaH\x04r\x02\x10\x01R\x05token\x12,\n" +
 	"\fnew_password\x18\x02 \x01(\tB\t\xbaH\x06r\x04\x10\b\x18\x14R\vnewPassword\x122\n" +
-	"\x10confirm_password\x18\x03 \x01(\tB\a\xbaH\x04r\x02\x10\x01R\x0fconfirmPassword2\xa0\x05\n" +
+	"\x10confirm_password\x18\x03 \x01(\tB\a\xbaH\x04r\x02\x10\x01R\x0fconfirmPassword\"D\n" +
+	"\x16ValidateSessionRequest\x12*\n" +
+	"\faccess_token\x18\x01 \x01(\tB\a\xbaH\x04r\x02\x10\x01R\vaccessToken\"V\n" +
+	"\x17ValidateSessionResponse\x12 \n" +
+	"\x04user\x18\x01 \x01(\v2\f.iam.v1.UserR\x04user\x12\x19\n" +
+	"\bis_valid\x18\x02 \x01(\bR\aisValid2\xf4\x05\n" +
 	"\vAuthService\x12=\n" +
 	"\bRegister\x12\x17.iam.v1.RegisterRequest\x1a\x18.iam.v1.RegisterResponse\x12E\n" +
 	"\vVerifyEmail\x12\x1a.iam.v1.VerifyEmailRequest\x1a\x1a.iam.v1.IAMSuccessResponse\x12]\n" +
@@ -651,7 +752,8 @@ const file_iam_v1_auth_proto_rawDesc = "" +
 	"\x06Logout\x12\x15.iam.v1.LogoutRequest\x1a\x1a.iam.v1.IAMSuccessResponse\x12K\n" +
 	"\x0eChangePassword\x12\x1d.iam.v1.ChangePasswordRequest\x1a\x1a.iam.v1.IAMSuccessResponse\x12K\n" +
 	"\x0eForgotPassword\x12\x1d.iam.v1.ForgotPasswordRequest\x1a\x1a.iam.v1.IAMSuccessResponse\x12I\n" +
-	"\rResetPassword\x12\x1c.iam.v1.ResetPasswordRequest\x1a\x1a.iam.v1.IAMSuccessResponseB1Z/github.com/vyolayer/vyolayer/proto/iam/v1;iAMV1b\x06proto3"
+	"\rResetPassword\x12\x1c.iam.v1.ResetPasswordRequest\x1a\x1a.iam.v1.IAMSuccessResponse\x12R\n" +
+	"\x0fValidateSession\x12\x1e.iam.v1.ValidateSessionRequest\x1a\x1f.iam.v1.ValidateSessionResponseB1Z/github.com/vyolayer/vyolayer/proto/iam/v1;iAMV1b\x06proto3"
 
 var (
 	file_iam_v1_auth_proto_rawDescOnce sync.Once
@@ -665,7 +767,7 @@ func file_iam_v1_auth_proto_rawDescGZIP() []byte {
 	return file_iam_v1_auth_proto_rawDescData
 }
 
-var file_iam_v1_auth_proto_msgTypes = make([]protoimpl.MessageInfo, 11)
+var file_iam_v1_auth_proto_msgTypes = make([]protoimpl.MessageInfo, 13)
 var file_iam_v1_auth_proto_goTypes = []any{
 	(*RegisterRequest)(nil),                // 0: iam.v1.RegisterRequest
 	(*RegisterResponse)(nil),               // 1: iam.v1.RegisterResponse
@@ -678,35 +780,41 @@ var file_iam_v1_auth_proto_goTypes = []any{
 	(*ChangePasswordRequest)(nil),          // 8: iam.v1.ChangePasswordRequest
 	(*ForgotPasswordRequest)(nil),          // 9: iam.v1.ForgotPasswordRequest
 	(*ResetPasswordRequest)(nil),           // 10: iam.v1.ResetPasswordRequest
-	(*timestamppb.Timestamp)(nil),          // 11: google.protobuf.Timestamp
-	(*IAMSuccessResponse)(nil),             // 12: iam.v1.IAMSuccessResponse
+	(*ValidateSessionRequest)(nil),         // 11: iam.v1.ValidateSessionRequest
+	(*ValidateSessionResponse)(nil),        // 12: iam.v1.ValidateSessionResponse
+	(*timestamppb.Timestamp)(nil),          // 13: google.protobuf.Timestamp
+	(*User)(nil),                           // 14: iam.v1.User
+	(*IAMSuccessResponse)(nil),             // 15: iam.v1.IAMSuccessResponse
 }
 var file_iam_v1_auth_proto_depIdxs = []int32{
-	11, // 0: iam.v1.SessionTokenResponse.session_token_expires_at:type_name -> google.protobuf.Timestamp
-	11, // 1: iam.v1.SessionTokenResponse.access_token_expires_at:type_name -> google.protobuf.Timestamp
-	0,  // 2: iam.v1.AuthService.Register:input_type -> iam.v1.RegisterRequest
-	2,  // 3: iam.v1.AuthService.VerifyEmail:input_type -> iam.v1.VerifyEmailRequest
-	3,  // 4: iam.v1.AuthService.ResendVerificationEmail:input_type -> iam.v1.ResendVerificationEmailRequest
-	4,  // 5: iam.v1.AuthService.RefreshSession:input_type -> iam.v1.RefreshSessionRequest
-	5,  // 6: iam.v1.AuthService.Login:input_type -> iam.v1.LoginRequest
-	7,  // 7: iam.v1.AuthService.Logout:input_type -> iam.v1.LogoutRequest
-	8,  // 8: iam.v1.AuthService.ChangePassword:input_type -> iam.v1.ChangePasswordRequest
-	9,  // 9: iam.v1.AuthService.ForgotPassword:input_type -> iam.v1.ForgotPasswordRequest
-	10, // 10: iam.v1.AuthService.ResetPassword:input_type -> iam.v1.ResetPasswordRequest
-	1,  // 11: iam.v1.AuthService.Register:output_type -> iam.v1.RegisterResponse
-	12, // 12: iam.v1.AuthService.VerifyEmail:output_type -> iam.v1.IAMSuccessResponse
-	12, // 13: iam.v1.AuthService.ResendVerificationEmail:output_type -> iam.v1.IAMSuccessResponse
-	6,  // 14: iam.v1.AuthService.RefreshSession:output_type -> iam.v1.SessionTokenResponse
-	6,  // 15: iam.v1.AuthService.Login:output_type -> iam.v1.SessionTokenResponse
-	12, // 16: iam.v1.AuthService.Logout:output_type -> iam.v1.IAMSuccessResponse
-	12, // 17: iam.v1.AuthService.ChangePassword:output_type -> iam.v1.IAMSuccessResponse
-	12, // 18: iam.v1.AuthService.ForgotPassword:output_type -> iam.v1.IAMSuccessResponse
-	12, // 19: iam.v1.AuthService.ResetPassword:output_type -> iam.v1.IAMSuccessResponse
-	11, // [11:20] is the sub-list for method output_type
-	2,  // [2:11] is the sub-list for method input_type
-	2,  // [2:2] is the sub-list for extension type_name
-	2,  // [2:2] is the sub-list for extension extendee
-	0,  // [0:2] is the sub-list for field type_name
+	13, // 0: iam.v1.SessionTokenResponse.session_token_expires_at:type_name -> google.protobuf.Timestamp
+	13, // 1: iam.v1.SessionTokenResponse.access_token_expires_at:type_name -> google.protobuf.Timestamp
+	14, // 2: iam.v1.ValidateSessionResponse.user:type_name -> iam.v1.User
+	0,  // 3: iam.v1.AuthService.Register:input_type -> iam.v1.RegisterRequest
+	2,  // 4: iam.v1.AuthService.VerifyEmail:input_type -> iam.v1.VerifyEmailRequest
+	3,  // 5: iam.v1.AuthService.ResendVerificationEmail:input_type -> iam.v1.ResendVerificationEmailRequest
+	4,  // 6: iam.v1.AuthService.RefreshSession:input_type -> iam.v1.RefreshSessionRequest
+	5,  // 7: iam.v1.AuthService.Login:input_type -> iam.v1.LoginRequest
+	7,  // 8: iam.v1.AuthService.Logout:input_type -> iam.v1.LogoutRequest
+	8,  // 9: iam.v1.AuthService.ChangePassword:input_type -> iam.v1.ChangePasswordRequest
+	9,  // 10: iam.v1.AuthService.ForgotPassword:input_type -> iam.v1.ForgotPasswordRequest
+	10, // 11: iam.v1.AuthService.ResetPassword:input_type -> iam.v1.ResetPasswordRequest
+	11, // 12: iam.v1.AuthService.ValidateSession:input_type -> iam.v1.ValidateSessionRequest
+	1,  // 13: iam.v1.AuthService.Register:output_type -> iam.v1.RegisterResponse
+	15, // 14: iam.v1.AuthService.VerifyEmail:output_type -> iam.v1.IAMSuccessResponse
+	15, // 15: iam.v1.AuthService.ResendVerificationEmail:output_type -> iam.v1.IAMSuccessResponse
+	6,  // 16: iam.v1.AuthService.RefreshSession:output_type -> iam.v1.SessionTokenResponse
+	6,  // 17: iam.v1.AuthService.Login:output_type -> iam.v1.SessionTokenResponse
+	15, // 18: iam.v1.AuthService.Logout:output_type -> iam.v1.IAMSuccessResponse
+	15, // 19: iam.v1.AuthService.ChangePassword:output_type -> iam.v1.IAMSuccessResponse
+	15, // 20: iam.v1.AuthService.ForgotPassword:output_type -> iam.v1.IAMSuccessResponse
+	15, // 21: iam.v1.AuthService.ResetPassword:output_type -> iam.v1.IAMSuccessResponse
+	12, // 22: iam.v1.AuthService.ValidateSession:output_type -> iam.v1.ValidateSessionResponse
+	13, // [13:23] is the sub-list for method output_type
+	3,  // [3:13] is the sub-list for method input_type
+	3,  // [3:3] is the sub-list for extension type_name
+	3,  // [3:3] is the sub-list for extension extendee
+	0,  // [0:3] is the sub-list for field type_name
 }
 
 func init() { file_iam_v1_auth_proto_init() }
@@ -715,13 +823,14 @@ func file_iam_v1_auth_proto_init() {
 		return
 	}
 	file_iam_v1_common_proto_init()
+	file_iam_v1_user_proto_init()
 	type x struct{}
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_iam_v1_auth_proto_rawDesc), len(file_iam_v1_auth_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   11,
+			NumMessages:   13,
 			NumExtensions: 0,
 			NumServices:   1,
 		},
