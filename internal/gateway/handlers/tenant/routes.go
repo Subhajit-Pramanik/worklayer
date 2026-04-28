@@ -10,7 +10,7 @@ func (h *OrganizationHandler) RegisterRoutes(router fiber.Router) {
 
 	org := router.Group("/organizations")
 	org.Use(grpcCtxMiddleware)
-	org.Use(middleware.IamJWTVerify(h.iamJWT))
+	org.Use(middleware.IamJWTVerify(h.authClient))
 
 	org.
 		Post("/onboarding", h.onboarding).
@@ -42,7 +42,7 @@ func (h *OrganizationInvitationHandler) RegisterRoutes(router fiber.Router) {
 	grpcCtxMiddleware := middleware.NewGrpcCtxMiddleware(tenantGRPCTimeout).Handler()
 
 	org := router.Group("/organizations")
-	org.Use(grpcCtxMiddleware, middleware.IamJWTVerify(h.iamJWT))
+	org.Use(grpcCtxMiddleware, middleware.IamJWTVerify(h.authClient))
 
 	// Invitation routes that don't require an org context (accept uses token, pending is user-scoped)
 	org.Post("/invitations/accept", h.acceptInvitation)
@@ -67,7 +67,7 @@ func (h *OrganizationMemberHandler) RegisterRoutes(router fiber.Router) {
 	orgMemberGroup := router.Group("/organizations/:" + ParamOrganizationID + "/members")
 	orgMemberGroup.Use(
 		grpcCtxMiddleware,
-		middleware.IamJWTVerify(h.iamJWT),
+		middleware.IamJWTVerify(h.authClient),
 		middleware.ValidateOrganizationID(),
 	)
 
@@ -87,7 +87,7 @@ func (h *ProjectHandler) RegisterRoutes(router fiber.Router) {
 	projects := router.Group("/organizations/:" + ParamOrganizationID + "/projects")
 	projects.Use(
 		grpcCtxMiddleware.Handler(),
-		middleware.IamJWTVerify(h.iamJWT),
+		middleware.IamJWTVerify(h.authClient),
 		middleware.ValidateOrganizationID(),
 	)
 

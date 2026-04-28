@@ -37,7 +37,6 @@ func (h *ApiKeyHandler) Create(c *fiber.Ctx) error {
 		return response.Error(c, err)
 	}
 
-
 	actorID, _ = ctxutil.ExtractIAMUserID(c.UserContext())
 	if actorID == "" {
 		return response.Error(c, errors.Unauthorized("unauthorized"))
@@ -85,8 +84,8 @@ func (h *ApiKeyHandler) List(c *fiber.Ctx) error {
 		return response.Error(c, err)
 	}
 
-	page := c.QueryInt(QueryParamPage, 1)
-	limit := c.QueryInt(QueryParamLimit, 5)
+	page := c.QueryInt(QueryParamPage, defaultPage)
+	limit := c.QueryInt(QueryParamLimit, defaultPageLimit)
 	status := c.Query(QueryParamStatus)
 
 	resp, err := h.client.ListAPIKeys(c.UserContext(), &pb.ListAPIKeysRequest{
@@ -101,7 +100,17 @@ func (h *ApiKeyHandler) List(c *fiber.Ctx) error {
 		return response.Error(c, errors.FromGRPC(err))
 	}
 
-	return response.Success(c, resp)
+	apiKeysDTO := make([]*APIKeyDTO, len(resp.ApiKeys))
+	for i, apiKey := range resp.ApiKeys {
+		apiKeysDTO[i] = protoApiKeyToDTO(apiKey)
+	}
+
+	return response.Success(c, &ListAPIKeysDTO{
+		ApiKeys: apiKeysDTO,
+		Total:   resp.Total,
+		Page:    resp.Page,
+		Limit:   resp.Limit,
+	})
 }
 
 // @Summary Get API Key

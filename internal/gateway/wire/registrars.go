@@ -19,7 +19,6 @@ func NewRegistrars(
 	cookieSrv *service.AccountTokenService,
 	accountJWT jwt.AccountJWT,
 	iamCookieSrv *service.IAMCookieService,
-	iamJWT jwt.IamJWT,
 ) []server.RouteRegistrar {
 	return []server.RouteRegistrar{
 		healthhandler.NewHealthHandler(),
@@ -37,7 +36,7 @@ func NewRegistrars(
 			clients.IamAuthClient,
 			clients.IamUserClient,
 			iamCookieSrv,
-			iamJWT,
+			clients.IamAuthClient,
 			logger,
 		),
 
@@ -46,40 +45,40 @@ func NewRegistrars(
 		tenanthandler.NewOrganizationHandler(
 			logger,
 			clients.TenantOrganizationClient,
-			iamJWT,
+			clients.IamAuthClient,
 		),
 
 		// Tenant Organization Member routes
 		tenanthandler.NewOrganizationMemberHandler(
 			logger,
 			clients.TenantOrganizationMemClient,
-			iamJWT,
+			clients.IamAuthClient,
 		),
 
 		// Tenant Organization Invitation routes
 		tenanthandler.NewOrganizationInvitationHandler(
 			logger,
 			clients.TenantOrganizationInvClient,
-			iamJWT,
+			clients.IamAuthClient,
 		),
 
 		// Tenant Project & Project Member routes
 		tenanthandler.NewProjectHandler(
 			logger,
 			clients.TenantProjectClient,
-			iamJWT,
+			clients.IamAuthClient,
 		),
 
 		consolehandler.NewProjectServiceHandler(
 			logger,
 			clients.ConsoleProjectServiceManifestClient,
-			iamJWT,
+			clients.IamAuthClient,
 		),
 
 		apikeyhandler.NewHandler(
 			logger,
 			clients.ApikeyServiceClient,
-			iamJWT,
+			clients.IamAuthClient,
 		),
 	}
 }

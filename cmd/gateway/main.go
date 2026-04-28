@@ -95,12 +95,6 @@ func run() error {
 		},
 	})
 
-	iamSession := jwt.NewIamJWT(
-		cfg.IAMJWT.AccessTokenSecret,
-		cfg.IAMJWT.AccessTokenExpiry,
-		cfg.IAMJWT.RefreshTokenExpiry,
-	)
-
 	// Initialize Handlers
 	registrars := wire.NewRegistrars(
 		appLogger,
@@ -108,7 +102,6 @@ func run() error {
 		cookieSrv,
 		accountJWT,
 		iamCookieSrv,
-		iamSession,
 	)
 
 	// Setup and Start Server

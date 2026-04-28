@@ -6,7 +6,6 @@ import (
 	"github.com/gofiber/fiber/v2"
 	"github.com/vyolayer/vyolayer/internal/gateway/middleware"
 	"github.com/vyolayer/vyolayer/internal/gateway/service"
-	"github.com/vyolayer/vyolayer/pkg/jwt"
 	"github.com/vyolayer/vyolayer/pkg/logger"
 	iAMV1 "github.com/vyolayer/vyolayer/proto/iam/v1"
 )
@@ -15,15 +14,15 @@ func NewIAMAuthGatewayHandler(
 	auth iAMV1.AuthServiceClient,
 	user iAMV1.UserServiceClient,
 	cookie *service.IAMCookieService,
-	iamJWT jwt.IamJWT,
+	authClient iAMV1.AuthServiceClient,
 	logger *logger.AppLogger,
 ) *IAMAuthGatewayHandler {
 	return &IAMAuthGatewayHandler{
-		auth:   auth,
-		user:   user,
-		cookie: cookie,
-		iamJWT: iamJWT,
-		logger: logger.WithContext("IAMAuthGatewayHandler"),
+		auth:       auth,
+		user:       user,
+		cookie:     cookie,
+		authClient: authClient,
+		logger:     logger.WithContext("IAMAuthGatewayHandler"),
 	}
 }
 
@@ -55,7 +54,7 @@ func (h *IAMAuthGatewayHandler) RegisterRoutes(router fiber.Router) {
 
 	// ── Authenticated profile endpoints (/me) ───────────────────────────────
 	me := iam.Group("/me", standardLimiter)
-	me.Use(middleware.IamJWTVerify(h.iamJWT))
+	me.Use(middleware.IamJWTVerify(h.authClient))
 	me.Get("/", h.getMe)
 	// me.Patch("/", h.updateMe)
 	// me.Post("/change-password", h.changePassword)

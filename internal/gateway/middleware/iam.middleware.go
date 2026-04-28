@@ -7,32 +7,41 @@ import (
 	"github.com/gofiber/fiber/v2"
 	"github.com/vyolayer/vyolayer/pkg/ctxutil"
 	"github.com/vyolayer/vyolayer/pkg/errors"
-	"github.com/vyolayer/vyolayer/pkg/jwt"
+	iAMV1 "github.com/vyolayer/vyolayer/proto/iam/v1"
 	"google.golang.org/grpc/metadata"
 )
 
-func IamJWTVerify(jwt jwt.IamJWT) fiber.Handler {
+func IamJWTVerify(authClient iAMV1.AuthServiceClient) fiber.Handler {
 	return func(c *fiber.Ctx) error {
-		t := extractIamJWTFormCookie(c)
-		if t == "" {
-			t = extractIamJWTFormHeader(c)
+		token := extractIamJWTFormCookie(c)
+		if token == "" {
+			token = extractIamJWTFormHeader(c)
 		}
 
-		if t == "" {
+		if token == "" {
 			return errors.Unauthorized("Auth token is required")
 		}
 
-		user, err := jwt.VerifyAccessToken(t)
-		if err != nil {
+		resp, err := authClient.ValidateSession(c.UserContext(), &iAMV1.ValidateSessionRequest{
+			AccessToken: token,
+		})
+		if err != nil || !resp.GetIsValid() {
+			return errors.Unauthorized("invalid, expired, or revoked auth token")
+		}
+
+		user := resp.GetUser()
+		if user == nil {
 			return errors.Unauthorized("invalid or expired auth token")
 		}
 
-		log.Printf("[GATEWAY - IAM] (Middleware - IAM) User ID :: %s", user.UserID.String())
-		ctx := ctxutil.InjectIAMUserID(c.UserContext(), user.UserID.String())
-		ctx = ctxutil.InjectIAMUserEmail(ctx, user.Email)
+		log.Printf("[GATEWAY - IAM] (Middleware - IAM) User ID :: %s", user.GetId())
+
+		ctx := ctxutil.InjectIAMUserID(c.UserContext(), user.GetId())
+		ctx = ctxutil.InjectIAMUserEmail(ctx, user.GetEmail())
+
 		ctx = metadata.AppendToOutgoingContext(ctx,
-			"iam_user_id", user.UserID.String(),
-			"iam_user_email", user.Email,
+			"iam_user_id", user.GetId(),
+			"iam_user_email", user.GetEmail(),
 		)
 		c.SetUserContext(ctx)
 
