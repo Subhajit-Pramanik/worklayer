@@ -1,4 +1,4 @@
-package console
+package consoledto
 
 type ColumnDTO struct {
 	Key      string `json:"key"`
@@ -33,12 +33,12 @@ type ResourceDTO struct {
 }
 
 type ServiceManifestDTO struct {
-	Key         string `json:"key"`
-	Name        string `json:"name"`
-	Description string `json:"description"`
-	Status      string `json:"status"`
-	Plan        string `json:"plan"`
-	Icon        string `json:"icon"`
+	Key         string `json:"key" example:"auth"`
+	Name        string `json:"name" example:"Auth Service"`
+	Description string `json:"description" example:"Auth Service"`
+	Status      string `json:"status" example:"active"`
+	Plan        string `json:"plan" example:"pro"`
+	Icon        string `json:"icon" example:"auth"`
 }
 
 type ServiceManifestWithResourcesDTO struct {

@@ -1,7 +1,6 @@
 package middleware
 
 import (
-	"log"
 	"strings"
 
 	"github.com/gofiber/fiber/v2"
@@ -33,8 +32,6 @@ func IamJWTVerify(authClient iAMV1.AuthServiceClient) fiber.Handler {
 		if user == nil {
 			return errors.Unauthorized("invalid or expired auth token")
 		}
-
-		log.Printf("[GATEWAY - IAM] (Middleware - IAM) User ID :: %s", user.GetId())
 
 		ctx := ctxutil.InjectIAMUserID(c.UserContext(), user.GetId())
 		ctx = ctxutil.InjectIAMUserEmail(ctx, user.GetEmail())

@@ -4,6 +4,7 @@ import (
 	"github.com/gofiber/fiber/v2"
 	"github.com/vyolayer/vyolayer/pkg/errors"
 	"github.com/vyolayer/vyolayer/pkg/response"
+	consolev1 "github.com/vyolayer/vyolayer/proto/console/v1"
 	tenantV1 "github.com/vyolayer/vyolayer/proto/tenant/v1"
 )
 
@@ -24,12 +25,19 @@ func (h *OrganizationHandler) create(c *fiber.Ctx) error {
 		return response.Error(c, ErrInvalidBody)
 	}
 
-	resp, err := h.client.CreateOrganization(c.UserContext(), &req)
+	ctx := c.UserContext()
+	resp, err := h.client.CreateOrganization(ctx, &req)
 	if err != nil {
 		return response.Error(c, errors.FromGRPC(err))
 	}
 
-	h.logger.Debug("Organization created", resp)
+	h.consoleClient.InitializeProjectService(ctx,
+		&consolev1.InitializeProjectServiceRequest{
+			ProjectId: resp.GetProjectId(),
+			Plan:      "free",
+			Config:    map[string]string{},
+			Metadata:  map[string]string{},
+		})
 
 	return response.SuccessWithMessage(
 		c,
@@ -64,16 +72,15 @@ func (h *OrganizationHandler) onboarding(c *fiber.Ctx) error {
 	}
 
 	h.logger.Debug("Organization onboarded", resp)
-
-	dtoResp := protoOrgResponseToDTO(resp)
+	org := resp.GetOrganization()
 
 	return response.SuccessWithMessage(
 		c,
 		fiber.StatusCreated,
 		"organization onboarded successfully",
-		&OnboardOrganizationResponse{
-			Organization: dtoResp.Organization,
-			Members:      dtoResp.Members,
+		&CreateOrganizationResponse{
+			Name:        org.GetName(),
+			Description: org.GetDescription(),
 		},
 	)
 }

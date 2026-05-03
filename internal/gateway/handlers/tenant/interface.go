@@ -2,25 +2,36 @@ package tenant
 
 import (
 	"github.com/vyolayer/vyolayer/pkg/logger"
+	consolev1 "github.com/vyolayer/vyolayer/proto/console/v1"
 	iAMV1 "github.com/vyolayer/vyolayer/proto/iam/v1"
 	tenantV1 "github.com/vyolayer/vyolayer/proto/tenant/v1"
 )
 
 type OrganizationHandler struct {
-	logger     *logger.AppLogger
-	client     tenantV1.OrganizationServiceClient
-	authClient iAMV1.AuthServiceClient
+	logger            *logger.AppLogger
+	client            tenantV1.OrganizationServiceClient
+	authClient        iAMV1.AuthServiceClient
+	consoleClient     consolev1.ProjectServiceManifestClient
+	invitationHandler *OrganizationInvitationHandler
+	memberHandler     *OrganizationMemberHandler
 }
 
 func NewOrganizationHandler(
 	logger *logger.AppLogger,
 	client tenantV1.OrganizationServiceClient,
 	authClient iAMV1.AuthServiceClient,
+	consoleClient consolev1.ProjectServiceManifestClient,
+	invitationHandler *OrganizationInvitationHandler,
+	memberHandler *OrganizationMemberHandler,
+
 ) *OrganizationHandler {
 	return &OrganizationHandler{
-		logger:     logger.WithContext("Org Handler"),
-		client:     client,
-		authClient: authClient,
+		logger:            logger.WithContext("Org Handler"),
+		client:            client,
+		authClient:        authClient,
+		consoleClient:     consoleClient,
+		invitationHandler: invitationHandler,
+		memberHandler:     memberHandler,
 	}
 }
 
