@@ -7,33 +7,59 @@ import (
 
 	"github.com/vyolayer/vyolayer/internal/console/model"
 	"github.com/vyolayer/vyolayer/internal/console/repository"
-	"github.com/vyolayer/vyolayer/internal/shared/dto/console"
+	consoledto "github.com/vyolayer/vyolayer/internal/shared/dto/console"
 )
 
 type ManifestService interface {
-	GetProjectServiceManifest(ctx context.Context, projectID uuid.UUID, serviceKey string) (*console.ServiceManifestWithResourcesDTO, error)
-	ListProjectServices(ctx context.Context, projectID uuid.UUID) ([]console.ServiceManifestDTO, error)
+	InitProjectService(ctx context.Context, projectID uuid.UUID) error
+	GetProjectServiceManifest(ctx context.Context, projectID uuid.UUID, serviceKey string) (*consoledto.ServiceManifestWithResourcesDTO, error)
+	ListProjectServices(ctx context.Context, projectID uuid.UUID) ([]consoledto.ServiceManifestDTO, error)
 }
 
 type manifestService struct {
+	serviceRepo        repository.ServiceRepository
 	projectServiceRepo repository.ProjectServiceRepository
 	resourceRepo       repository.ResourceRepository
 	overrideRepo       repository.OverrideRepository
 }
 
 func NewManifestService(
+	serviceRepo repository.ServiceRepository,
 	projectServiceRepo repository.ProjectServiceRepository,
 	resourceRepo repository.ResourceRepository,
 	overrideRepo repository.OverrideRepository,
 ) ManifestService {
 	return &manifestService{
+		serviceRepo:        serviceRepo,
 		projectServiceRepo: projectServiceRepo,
 		resourceRepo:       resourceRepo,
 		overrideRepo:       overrideRepo,
 	}
 }
 
-func (s *manifestService) GetProjectServiceManifest(ctx context.Context, projectID uuid.UUID, serviceKey string) (*console.ServiceManifestWithResourcesDTO, error) {
+func (s *manifestService) InitProjectService(ctx context.Context, projectID uuid.UUID) error {
+
+	// Get all services
+	services, err := s.serviceRepo.List(ctx)
+	if err != nil {
+		return err
+	}
+
+	// Initialize project services
+	projectServices := []*model.ProjectService{}
+	for _, service := range services {
+		projectServices = append(projectServices, &model.ProjectService{
+			ProjectID: projectID,
+			ServiceID: service.ID,
+			Status:    "active",
+			Plan:      "free",
+		})
+	}
+
+	return s.projectServiceRepo.Initialize(ctx, projectServices)
+}
+
+func (s *manifestService) GetProjectServiceManifest(ctx context.Context, projectID uuid.UUID, serviceKey string) (*consoledto.ServiceManifestWithResourcesDTO, error) {
 	// Load active project service
 	ps, err := s.projectServiceRepo.GetActiveByProjectAndKey(ctx, projectID, serviceKey)
 	if err != nil {
@@ -91,8 +117,8 @@ func (s *manifestService) GetProjectServiceManifest(ctx context.Context, project
 	}
 
 	// Build DTO
-	manifestDTO := &console.ServiceManifestWithResourcesDTO{
-		ServiceManifestDTO: console.ServiceManifestDTO{
+	manifestDTO := &consoledto.ServiceManifestWithResourcesDTO{
+		ServiceManifestDTO: consoledto.ServiceManifestDTO{
 			Key:         ps.Service.Key,
 			Name:        ps.Service.Name,
 			Description: ps.Service.Description,
@@ -115,14 +141,14 @@ func (s *manifestService) GetProjectServiceManifest(ctx context.Context, project
 		// 	continue
 		// }
 
-		resDTO := console.ResourceDTO{
+		resDTO := consoledto.ResourceDTO{
 			Key:     res.Key,
 			Label:   res.Label,
 			Route:   res.Route,
 			Icon:    res.Icon,
-			Columns: []console.ColumnDTO{},
-			Actions: []console.ActionDTO{},
-			Filters: []console.FilterDTO{},
+			Columns: []consoledto.ColumnDTO{},
+			Actions: []consoledto.ActionDTO{},
+			Filters: []consoledto.FilterDTO{},
 		}
 
 		// if hasOverride && resOverride.CustomLabel != "" {
@@ -151,7 +177,7 @@ func (s *manifestService) GetProjectServiceManifest(ctx context.Context, project
 				continue
 			}
 
-			resDTO.Columns = append(resDTO.Columns, console.ColumnDTO{
+			resDTO.Columns = append(resDTO.Columns, consoledto.ColumnDTO{
 				Key:      c.Key,
 				Label:    label,
 				Type:     c.Type,
@@ -182,7 +208,7 @@ func (s *manifestService) GetProjectServiceManifest(ctx context.Context, project
 				continue
 			}
 
-			resDTO.Actions = append(resDTO.Actions, console.ActionDTO{
+			resDTO.Actions = append(resDTO.Actions, consoledto.ActionDTO{
 				Key:     a.Key,
 				Label:   label,
 				Scope:   a.Scope,
@@ -193,7 +219,7 @@ func (s *manifestService) GetProjectServiceManifest(ctx context.Context, project
 
 		// build filters
 		for _, f := range filterMap[res.ID] {
-			resDTO.Filters = append(resDTO.Filters, console.FilterDTO{
+			resDTO.Filters = append(resDTO.Filters, consoledto.FilterDTO{
 				Key:   f.Key,
 				Label: f.Label,
 				Type:  f.Type,
@@ -206,15 +232,15 @@ func (s *manifestService) GetProjectServiceManifest(ctx context.Context, project
 	return manifestDTO, nil
 }
 
-func (s *manifestService) ListProjectServices(ctx context.Context, projectID uuid.UUID) ([]console.ServiceManifestDTO, error) {
+func (s *manifestService) ListProjectServices(ctx context.Context, projectID uuid.UUID) ([]consoledto.ServiceManifestDTO, error) {
 	pss, err := s.projectServiceRepo.ListActiveByProject(ctx, projectID)
 	if err != nil {
 		return nil, err
 	}
 
-	var results []console.ServiceManifestDTO
+	var results []consoledto.ServiceManifestDTO
 	for _, ps := range pss {
-		results = append(results, console.ServiceManifestDTO{
+		results = append(results, consoledto.ServiceManifestDTO{
 			Key:         ps.Service.Key,
 			Name:        ps.Service.Name,
 			Description: ps.Service.Description,

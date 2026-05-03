@@ -30,12 +30,13 @@ func main() {
 	}
 
 	// Setup Repositories
+	serviceRepo := repository.NewServiceRepository(db)
 	psRepo := repository.NewProjectServiceRepository(db)
 	resRepo := repository.NewResourceRepository(db)
 	overRepo := repository.NewOverrideRepository(db)
 
 	// Setup Service
-	manifestSvc := service.NewManifestService(psRepo, resRepo, overRepo)
+	manifestSvc := service.NewManifestService(serviceRepo, psRepo, resRepo, overRepo)
 
 	// Setup gRPC Server
 	grpcServer := server.NewGRPCServer("50054", logger)

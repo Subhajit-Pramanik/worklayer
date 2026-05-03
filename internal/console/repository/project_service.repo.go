@@ -10,6 +10,7 @@ import (
 )
 
 type ProjectServiceRepository interface {
+	Initialize(ctx context.Context, projectService []*model.ProjectService) error
 	GetActiveByProjectAndKey(ctx context.Context, projectID uuid.UUID, serviceKey string) (*model.ProjectService, error)
 	ListActiveByProject(ctx context.Context, projectID uuid.UUID) ([]model.ProjectService, error)
 }
@@ -20,6 +21,13 @@ type projectServiceRepository struct {
 
 func NewProjectServiceRepository(db *gorm.DB) ProjectServiceRepository {
 	return &projectServiceRepository{db: db}
+}
+
+func (r *projectServiceRepository) Initialize(ctx context.Context, projectService []*model.ProjectService) error {
+
+	return r.db.WithContext(ctx).
+		CreateInBatches(projectService, len(projectService)).
+		Error
 }
 
 func (r *projectServiceRepository) GetActiveByProjectAndKey(ctx context.Context, projectID uuid.UUID, serviceKey string) (*model.ProjectService, error) {

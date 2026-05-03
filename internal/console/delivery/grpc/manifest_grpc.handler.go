@@ -21,6 +21,28 @@ func NewManifestServer(manifestService service.ManifestService) *ManifestServer 
 	}
 }
 
+func (s *ManifestServer) InitializeProjectService(
+	ctx context.Context,
+	req *consolev1.InitializeProjectServiceRequest,
+) (*consolev1.InitializeProjectServiceResponse, error) {
+
+	projectID, err := uuid.Parse(req.ProjectId)
+	if err != nil {
+		log.Printf("invalid project_id: %v", err)
+		return nil, err
+	}
+
+	err = s.manifestService.InitProjectService(ctx, projectID)
+	if err != nil {
+		log.Printf("error initializing project service: %v", err)
+		return nil, err
+	}
+
+	return &consolev1.InitializeProjectServiceResponse{
+		Success: true,
+	}, nil
+}
+
 func (s *ManifestServer) GetProjectServiceManifest(
 	ctx context.Context,
 	req *consolev1.GetProjectServiceManifestRequest,
