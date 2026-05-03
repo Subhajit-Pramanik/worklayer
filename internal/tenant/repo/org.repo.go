@@ -68,6 +68,25 @@ func (r *organizationRepo) Update(ctx context.Context, org *domain.Organization)
 	return nil
 }
 
+func (r *organizationRepo) UpdateProjectCount(ctx context.Context, orgID uuid.UUID, projectCount int) error {
+	// Count must be +1 or -1
+	if projectCount != 1 && projectCount != -1 {
+		return ConvertDBError(nil, "Project count must be 1 or -1")
+	}
+
+	err := r.db.WithContext(ctx).
+		Model(&Organization{}).
+		Where("id = ?", orgID).
+		Update("project_count", gorm.Expr("project_count + ?", projectCount)).Error
+
+	if err != nil {
+		r.logger.ErrorWithErr("Failed to update project count", err)
+		return ConvertDBError(err, "Failed to update project count")
+	}
+
+	return nil
+}
+
 func (r *organizationRepo) Delete(ctx context.Context, orgID uuid.UUID, confirmName string) error {
 	// Delete performs a soft delete
 	err := r.db.WithContext(ctx).

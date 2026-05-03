@@ -74,6 +74,18 @@ func (h *ProjectHandler) CreateProject(ctx context.Context, req *tenantV1.Create
 		return nil, status.Error(codes.NotFound, "organization member not found")
 	}
 
+	if orgMember == nil {
+		return nil, status.Error(codes.NotFound, "organization member not found")
+	}
+
+	// check max projects limit
+	if org.ProjectCount >= org.MaxProjects {
+		return nil, status.Error(
+			codes.ResourceExhausted,
+			"organization has reached the maximum number of projects",
+		)
+	}
+
 	project, err := h.projectUC.Create(ctx, org.ID, orgMember.ID, req.GetName(), req.GetDescription())
 	if err != nil {
 		h.logger.Error("handler: failed to create project", err)
@@ -81,7 +93,13 @@ func (h *ProjectHandler) CreateProject(ctx context.Context, req *tenantV1.Create
 	}
 
 	// add member
-	if _, err := h.projectMemberUC.AddMember(ctx, orgID, project.ID, userID, orgMember.ID, "project_admin"); err != nil {
+	if _, err := h.projectMemberUC.
+		AddMember(ctx, orgID, project.ID, userID, orgMember.ID, "project_admin"); err != nil {
+		return nil, status.Error(codes.Internal, err.Error())
+	}
+
+	// increment project count
+	if err := h.orgUC.IncrementProjectCount(ctx, orgID); err != nil {
 		return nil, status.Error(codes.Internal, err.Error())
 	}
 
@@ -192,6 +210,8 @@ func (h *ProjectHandler) DeleteProject(ctx context.Context, req *tenantV1.Delete
 	if err := h.projectUC.Delete(ctx, orgID, projectID, req.GetConfirmName()); err != nil {
 		return nil, status.Error(codes.InvalidArgument, err.Error())
 	}
+
+	h.orgUC.DecrementProjectCount(ctx, orgID)
 
 	return &tenantV1.TenantSuccessResponse{Message: "Project permanently deleted"}, nil
 }

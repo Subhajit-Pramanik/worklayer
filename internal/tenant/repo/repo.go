@@ -19,6 +19,7 @@ type GormRepository interface {
 type OrganizationWrite interface {
 	Create(ctx context.Context, tx *gorm.DB, org *domain.Organization) error
 	Update(ctx context.Context, org *domain.Organization) error
+	UpdateProjectCount(ctx context.Context, orgID uuid.UUID, count int) error
 
 	Delete(ctx context.Context, orgID uuid.UUID, confirmName string) error
 	Archive(ctx context.Context, orgID uuid.UUID, confirmName string) error

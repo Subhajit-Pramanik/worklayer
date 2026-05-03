@@ -18,6 +18,10 @@ import (
 type OrganizationUseCase interface {
 	Create(ctx context.Context, userID uuid.UUID, name, description string) (*domain.Organization, *domain.OrganizationMember, error)
 	Update(ctx context.Context, orgID uuid.UUID, name, description string) (*domain.Organization, error)
+
+	IncrementProjectCount(ctx context.Context, orgID uuid.UUID) error
+	DecrementProjectCount(ctx context.Context, orgID uuid.UUID) error
+
 	Archive(ctx context.Context, orgID uuid.UUID, confirmName string) error
 	Restore(ctx context.Context, orgID uuid.UUID) error
 	Delete(ctx context.Context, orgID uuid.UUID, confirmName string) error
@@ -70,6 +74,14 @@ func NewOrganizationUseCase(
 	}
 }
 
+/*
+	Create new organization
+	Get owner role id
+	Create organization, member, member role, in a transaction
+	Create tenant infra
+	Create default project
+*/
+
 func (uc *OrganizationUseCaseImpl) Create(
 	ctx context.Context,
 	userID uuid.UUID,
@@ -81,9 +93,11 @@ func (uc *OrganizationUseCaseImpl) Create(
 		return nil, nil, err
 	}
 
-	org := domain.NewOrganization(userID, name, description)
-	member := domain.NewOrganizationMember(org.ID, userID)
-	memberRole := domain.NewMemberOrganizationRole(org.ID, member.ID, ownerRole.ID, member.ID)
+	var (
+		org        = domain.NewOrganization(userID, name, description)
+		member     = domain.NewOrganizationMember(org.ID, userID)
+		memberRole = domain.NewMemberOrganizationRole(org.ID, member.ID, ownerRole.ID, member.ID)
+	)
 
 	// Create organization and member in a transaction
 	tx, err := uc.orgRepo.BeginTx(ctx)
@@ -92,26 +106,22 @@ func (uc *OrganizationUseCaseImpl) Create(
 	}
 	defer uc.orgRepo.RollbackTx(tx)
 
-	err = uc.orgRepo.Create(ctx, tx, org)
-	if err != nil {
+	if err = uc.orgRepo.Create(ctx, tx, org); err != nil {
 		return nil, nil, err
 	}
 
-	err = uc.memberRepo.AddMember(ctx, tx, member)
-	if err != nil {
+	if err = uc.memberRepo.AddMember(ctx, tx, member); err != nil {
 		return nil, nil, err
 	}
 
-	err = uc.memberRoleRepo.AddRole(ctx, tx, memberRole)
-	if err != nil {
+	if err = uc.memberRoleRepo.AddRole(ctx, tx, memberRole); err != nil {
 		return nil, nil, err
 	}
+
+	var tenantInfra *domain.TenantInfra
 
 	// get tenant infra
-	tenantInfra, err := uc.tenantInfraRepo.GetByOrgID(ctx, org.ID)
-	if err != nil {
-		return nil, nil, err
-	}
+	tenantInfra, _ = uc.tenantInfraRepo.GetByOrgID(ctx, org.ID)
 
 	if tenantInfra == nil {
 
@@ -125,20 +135,19 @@ func (uc *OrganizationUseCaseImpl) Create(
 		}
 
 		tenantInfra = domain.NewTenantInfra(org.ID, schema)
-		err = uc.tenantInfraRepo.Create(ctx, tx, tenantInfra)
-		if err != nil {
+		if err = uc.tenantInfraRepo.Create(ctx, tx, tenantInfra); err != nil {
 			return nil, nil, err
 		}
 
 		// Provision tenant
-		err = uc.tenantProvisioner.Provision(ctx, schema)
-		if err != nil {
+		if err = uc.tenantProvisioner.Provision(ctx, schema); err != nil {
 			return nil, nil, err
 		}
 
 		time.Sleep(1 * time.Second)
 
-		if err := uc.tenantInfraRepo.UpdateStatus(ctx, tx, tenantInfra.ID, domain.TenantInfraStatusReady); err != nil {
+		if err := uc.tenantInfraRepo.
+			UpdateStatus(ctx, tx, tenantInfra.ID, domain.TenantInfraStatusReady); err != nil {
 			uc.logger.Error("failed to update tenant infra status", map[string]any{
 				"orgID": org.ID,
 				"error": err.Error(),
@@ -146,8 +155,7 @@ func (uc *OrganizationUseCaseImpl) Create(
 		}
 	}
 
-	err = uc.orgRepo.CommitTx(tx)
-	if err != nil {
+	if err = uc.orgRepo.CommitTx(tx); err != nil {
 		return nil, nil, err
 	}
 
@@ -192,6 +200,14 @@ func (uc *OrganizationUseCaseImpl) Update(
 	}
 
 	return org, nil
+}
+
+func (uc *OrganizationUseCaseImpl) IncrementProjectCount(ctx context.Context, orgID uuid.UUID) error {
+	return uc.orgRepo.UpdateProjectCount(ctx, orgID, 1)
+}
+
+func (uc *OrganizationUseCaseImpl) DecrementProjectCount(ctx context.Context, orgID uuid.UUID) error {
+	return uc.orgRepo.UpdateProjectCount(ctx, orgID, -1)
 }
 
 func (uc *OrganizationUseCaseImpl) Archive(ctx context.Context, orgID uuid.UUID, confirmName string) error {

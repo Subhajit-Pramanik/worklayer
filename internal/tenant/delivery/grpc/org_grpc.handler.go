@@ -19,6 +19,7 @@ type OrganizationHandler struct {
 	orgUC           usecase.OrganizationUseCase
 	projectUC       domain.ProjectUseCase
 	projectMemberUC domain.ProjectMemberUseCase
+	projectHandler  ProjectHandler
 }
 
 func NewOrganizationHandler(
@@ -26,19 +27,21 @@ func NewOrganizationHandler(
 	orgUC usecase.OrganizationUseCase,
 	projectUC domain.ProjectUseCase,
 	projectMemberUC domain.ProjectMemberUseCase,
+	projectHandler ProjectHandler,
 ) *OrganizationHandler {
 	return &OrganizationHandler{
 		logger:          logger,
 		orgUC:           orgUC,
 		projectUC:       projectUC,
 		projectMemberUC: projectMemberUC,
+		projectHandler:  projectHandler,
 	}
 }
 
 func (h *OrganizationHandler) CreateOrganization(
 	ctx context.Context,
 	req *tenantV1.CreateOrganizationRequest,
-) (*tenantV1.OrganizationResponse, error) {
+) (*tenantV1.CreateOrganizationResponse, error) {
 	userId, err := ctxutil.ExtractIAMUserUUID(ctx)
 	if err != nil {
 		return nil, err
@@ -53,12 +56,12 @@ func (h *OrganizationHandler) CreateOrganization(
 	time.Sleep(1 * time.Second)
 
 	// create default project
-	project, err := h.projectUC.Create(ctx, org.ID, member.ID, "Default Project", "Default project")
+	project, err := h.projectHandler.CreateProject(ctx, &tenantV1.CreateProjectRequest{
+		Name:           org.GetName(),
+		Description:    org.GetDescription(),
+		OrganizationId: org.GetIDString(),
+	})
 	if err != nil {
-		return nil, err
-	}
-
-	if _, err := h.projectMemberUC.AddMember(ctx, org.ID, project.ID, userId, member.ID, "project_admin"); err != nil {
 		return nil, err
 	}
 
@@ -66,20 +69,17 @@ func (h *OrganizationHandler) CreateOrganization(
 	memberDto := mapOrganizationMemberToProto(member)
 	membersDto := []*tenantV1.OrganizationMember{memberDto}
 
-	h.logger.Debug("Organization created", map[string]any{
-		"org":    orgDto,
-		"member": memberDto,
-	})
-	return &tenantV1.OrganizationResponse{
+	return &tenantV1.CreateOrganizationResponse{
 		Organization: orgDto,
 		Members:      membersDto,
+		ProjectId:    project.GetProject().GetId(),
 	}, nil
 }
 
 func (h *OrganizationHandler) OnboardOrganization(
 	ctx context.Context,
 	req *tenantV1.CreateOrganizationRequest,
-) (*tenantV1.OrganizationResponse, error) {
+) (*tenantV1.CreateOrganizationResponse, error) {
 	resp, err := h.CreateOrganization(ctx, req)
 	if err != nil {
 		return nil, err
@@ -190,6 +190,8 @@ func (h *OrganizationHandler) DeleteOrganization(
 		return nil, err
 	}
 
+	h.orgUC.DecrementProjectCount(ctx, orgID)
+
 	return &tenantV1.TenantSuccessResponse{
 		Message: "Organization deleted successfully",
 	}, nil
@@ -205,6 +207,8 @@ func (h *OrganizationHandler) ArchiveOrganization(
 		return nil, err
 	}
 
+	h.orgUC.DecrementProjectCount(ctx, orgID)
+
 	return &tenantV1.TenantSuccessResponse{
 		Message: "Organization archived successfully",
 	}, nil
@@ -219,6 +223,8 @@ func (h *OrganizationHandler) RestoreOrganization(
 	if err != nil {
 		return nil, err
 	}
+
+	h.orgUC.IncrementProjectCount(ctx, orgID)
 
 	return &tenantV1.TenantSuccessResponse{
 		Message: "Organization restored successfully",

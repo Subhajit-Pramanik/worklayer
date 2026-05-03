@@ -147,12 +147,6 @@ func run() error {
 	)
 
 	// ── gRPC handlers ─────────────────────────────────────────────────────────
-	OrgH := tenantGrpc.NewOrganizationHandler(
-		appLogger.WithContext("Org Handler"),
-		orgUC,
-		projectUC,
-		projectMemberUC,
-	)
 
 	OrgMemberH := tenantGrpc.NewOrganizationMemberHandler(
 		appLogger.WithContext("Org Member Handler"),
@@ -169,6 +163,13 @@ func run() error {
 		orgMemberUC,
 		projectUC,
 		projectMemberUC,
+	)
+	OrgH := tenantGrpc.NewOrganizationHandler(
+		appLogger.WithContext("Org Handler"),
+		orgUC,
+		projectUC,
+		projectMemberUC,
+		*ProjectH,
 	)
 
 	// ── Server ────────────────────────────────────────────────────────────────
