@@ -59,14 +59,13 @@ docs:
 # Gateway docs generate	
 docs-gateway:
 	@echo "Installing swag if needed..."
-	@go install github.com/swaggo/swag/cmd/swag@latest
+# 	@go install github.com/swaggo/swag/cmd/swag@latest
 	@echo "Generating Gateway Swagger docs in docs/gateway..."
 	@mkdir -p docs/gateway
 	@$(shell go env GOPATH)/bin/swag init \
-		-g internal/gateway/server/server.go \
+		-g cmd/gateway/main.go \
 		-o docs/gateway \
-		--parseInternal \
-		--exclude internal/app
+		--parseInternal
 
 # Start the database container
 docker-up:

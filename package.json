@@ -25,8 +25,8 @@
     "dev:apikey": "air -c toml/.air.apikey.toml",
     "dev:gateway": "air -c toml/.air.gateway.toml",
     "dev:all": "concurrently -n IAM,TENANT,ACCOUNT,CONSOLE,APIKEY -c blue,green,yellow,magenta,cyan \"npm run dev:iam\" \"npm run dev:tenant\" \"npm run dev:account\" \"npm run dev:console\" \"npm run dev:apikey\"",
-    "db:docker:up": "docker-compose -f docker/docker-compose.dev.yml up -d",
-    "db:docker:down": "docker-compose -f docker/docker-compose.dev.yml down",
+    "db:docker:up": "docker-compose -f docker/docker-compose.db.yml up -d",
+    "db:docker:down": "docker-compose -f docker/docker-compose.db.yml down",
     "db:docker:start": "docker-compose -f docker/docker-compose.dev.yml start",
     "db:docker:stop": "docker-compose -f docker/docker-compose.dev.yml stop"
   },

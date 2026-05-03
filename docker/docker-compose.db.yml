@@ -1,0 +1,35 @@
+services:
+
+  database:
+    image: postgres:16-alpine
+    container_name: vyolayer_db
+    environment:
+      POSTGRES_DB: ${DB_NAME:-vyolayer_db}
+      POSTGRES_USER: ${DB_USER:-vyolayer_user}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-vyolayer_password}
+    ports:
+      - "${DB_PORT:-4444}:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U ${DB_USER:-vyolayer_user} -d ${DB_NAME:-vyolayer_db}" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - vyolayer_network_db
+
+  mailhog:
+    image: mailhog/mailhog
+    container_name: vyolayer_mailhog
+    ports:
+      - "1025:1025"
+      - "8025:8025"
+    networks:
+      - vyolayer_network_db
+
+networks:
+  vyolayer_network_db:
+
+volumes:
+  pgdata:
