@@ -19,6 +19,7 @@ import (
 const _ = grpc.SupportPackageIsVersion9
 
 const (
+	ProjectServiceManifest_InitializeProjectService_FullMethodName  = "/console.v1.ProjectServiceManifest/InitializeProjectService"
 	ProjectServiceManifest_GetProjectServiceManifest_FullMethodName = "/console.v1.ProjectServiceManifest/GetProjectServiceManifest"
 	ProjectServiceManifest_ListProjectServices_FullMethodName       = "/console.v1.ProjectServiceManifest/ListProjectServices"
 )
@@ -27,6 +28,7 @@ const (
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type ProjectServiceManifestClient interface {
+	InitializeProjectService(ctx context.Context, in *InitializeProjectServiceRequest, opts ...grpc.CallOption) (*InitializeProjectServiceResponse, error)
 	GetProjectServiceManifest(ctx context.Context, in *GetProjectServiceManifestRequest, opts ...grpc.CallOption) (*GetProjectServiceManifestResponse, error)
 	ListProjectServices(ctx context.Context, in *ListProjectServicesRequest, opts ...grpc.CallOption) (*ListProjectServicesResponse, error)
 }
@@ -37,6 +39,16 @@ type projectServiceManifestClient struct {
 
 func NewProjectServiceManifestClient(cc grpc.ClientConnInterface) ProjectServiceManifestClient {
 	return &projectServiceManifestClient{cc}
+}
+
+func (c *projectServiceManifestClient) InitializeProjectService(ctx context.Context, in *InitializeProjectServiceRequest, opts ...grpc.CallOption) (*InitializeProjectServiceResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(InitializeProjectServiceResponse)
+	err := c.cc.Invoke(ctx, ProjectServiceManifest_InitializeProjectService_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
 }
 
 func (c *projectServiceManifestClient) GetProjectServiceManifest(ctx context.Context, in *GetProjectServiceManifestRequest, opts ...grpc.CallOption) (*GetProjectServiceManifestResponse, error) {
@@ -63,6 +75,7 @@ func (c *projectServiceManifestClient) ListProjectServices(ctx context.Context, 
 // All implementations must embed UnimplementedProjectServiceManifestServer
 // for forward compatibility.
 type ProjectServiceManifestServer interface {
+	InitializeProjectService(context.Context, *InitializeProjectServiceRequest) (*InitializeProjectServiceResponse, error)
 	GetProjectServiceManifest(context.Context, *GetProjectServiceManifestRequest) (*GetProjectServiceManifestResponse, error)
 	ListProjectServices(context.Context, *ListProjectServicesRequest) (*ListProjectServicesResponse, error)
 	mustEmbedUnimplementedProjectServiceManifestServer()
@@ -75,6 +88,9 @@ type ProjectServiceManifestServer interface {
 // pointer dereference when methods are called.
 type UnimplementedProjectServiceManifestServer struct{}
 
+func (UnimplementedProjectServiceManifestServer) InitializeProjectService(context.Context, *InitializeProjectServiceRequest) (*InitializeProjectServiceResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method InitializeProjectService not implemented")
+}
 func (UnimplementedProjectServiceManifestServer) GetProjectServiceManifest(context.Context, *GetProjectServiceManifestRequest) (*GetProjectServiceManifestResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "method GetProjectServiceManifest not implemented")
 }
@@ -101,6 +117,24 @@ func RegisterProjectServiceManifestServer(s grpc.ServiceRegistrar, srv ProjectSe
 		t.testEmbeddedByValue()
 	}
 	s.RegisterService(&ProjectServiceManifest_ServiceDesc, srv)
+}
+
+func _ProjectServiceManifest_InitializeProjectService_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(InitializeProjectServiceRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ProjectServiceManifestServer).InitializeProjectService(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: ProjectServiceManifest_InitializeProjectService_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ProjectServiceManifestServer).InitializeProjectService(ctx, req.(*InitializeProjectServiceRequest))
+	}
+	return interceptor(ctx, in, info, handler)
 }
 
 func _ProjectServiceManifest_GetProjectServiceManifest_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
@@ -146,6 +180,10 @@ var ProjectServiceManifest_ServiceDesc = grpc.ServiceDesc{
 	ServiceName: "console.v1.ProjectServiceManifest",
 	HandlerType: (*ProjectServiceManifestServer)(nil),
 	Methods: []grpc.MethodDesc{
+		{
+			MethodName: "InitializeProjectService",
+			Handler:    _ProjectServiceManifest_InitializeProjectService_Handler,
+		},
 		{
 			MethodName: "GetProjectServiceManifest",
 			Handler:    _ProjectServiceManifest_GetProjectServiceManifest_Handler,

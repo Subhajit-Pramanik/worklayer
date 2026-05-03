@@ -2,18 +2,31 @@ syntax = "proto3";
 
 package console.v1;
 
-option go_package = "github.com/subho/vyolayer/VyoLayer/proto/console/v1;consolev1";
+option go_package = "github.com/vyolayer/vyolayer/proto/console/v1;consolev1";
 
+import "buf/validate/validate.proto";
 import "google/protobuf/empty.proto";
 
 service ProjectServiceManifest {
+  rpc InitializeProjectService(InitializeProjectServiceRequest) returns (InitializeProjectServiceResponse);
   rpc GetProjectServiceManifest(GetProjectServiceManifestRequest) returns (GetProjectServiceManifestResponse);
   rpc ListProjectServices(ListProjectServicesRequest) returns (ListProjectServicesResponse);
 }
 
+message InitializeProjectServiceRequest {
+  string project_id = 1 [(buf.validate.field).string.min_len = 1];
+  string plan = 2 [(buf.validate.field).string.min_len = 1];
+  map<string, string> config = 3;
+  map<string, string> metadata = 4;
+}
+
+message InitializeProjectServiceResponse {
+  bool success = 1;
+}
+
 message GetProjectServiceManifestRequest {
-  string project_id = 1;
-  string service_key = 2;
+  string project_id = 1 [(buf.validate.field).string.min_len = 1];
+  string service_key = 2 [(buf.validate.field).string.min_len = 1];
 }
 
 message GetProjectServiceManifestResponse {

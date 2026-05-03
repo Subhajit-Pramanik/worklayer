@@ -38,8 +38,8 @@ const (
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type OrganizationServiceClient interface {
 	// --- Global / Public Routes (Bypasses Org Check) ---
-	CreateOrganization(ctx context.Context, in *CreateOrganizationRequest, opts ...grpc.CallOption) (*OrganizationResponse, error)
-	OnboardOrganization(ctx context.Context, in *CreateOrganizationRequest, opts ...grpc.CallOption) (*OrganizationResponse, error)
+	CreateOrganization(ctx context.Context, in *CreateOrganizationRequest, opts ...grpc.CallOption) (*CreateOrganizationResponse, error)
+	OnboardOrganization(ctx context.Context, in *CreateOrganizationRequest, opts ...grpc.CallOption) (*CreateOrganizationResponse, error)
 	ListOrganizations(ctx context.Context, in *ListOrganizationsRequest, opts ...grpc.CallOption) (*ListOrganizationsResponse, error)
 	// --- Organization Management ---
 	GetOrganizationById(ctx context.Context, in *TenantOrganizationIDRequest, opts ...grpc.CallOption) (*OrganizationResponse, error)
@@ -62,9 +62,9 @@ func NewOrganizationServiceClient(cc grpc.ClientConnInterface) OrganizationServi
 	return &organizationServiceClient{cc}
 }
 
-func (c *organizationServiceClient) CreateOrganization(ctx context.Context, in *CreateOrganizationRequest, opts ...grpc.CallOption) (*OrganizationResponse, error) {
+func (c *organizationServiceClient) CreateOrganization(ctx context.Context, in *CreateOrganizationRequest, opts ...grpc.CallOption) (*CreateOrganizationResponse, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(OrganizationResponse)
+	out := new(CreateOrganizationResponse)
 	err := c.cc.Invoke(ctx, OrganizationService_CreateOrganization_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
@@ -72,9 +72,9 @@ func (c *organizationServiceClient) CreateOrganization(ctx context.Context, in *
 	return out, nil
 }
 
-func (c *organizationServiceClient) OnboardOrganization(ctx context.Context, in *CreateOrganizationRequest, opts ...grpc.CallOption) (*OrganizationResponse, error) {
+func (c *organizationServiceClient) OnboardOrganization(ctx context.Context, in *CreateOrganizationRequest, opts ...grpc.CallOption) (*CreateOrganizationResponse, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(OrganizationResponse)
+	out := new(CreateOrganizationResponse)
 	err := c.cc.Invoke(ctx, OrganizationService_OnboardOrganization_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
@@ -187,8 +187,8 @@ func (c *organizationServiceClient) GetAllRoles(ctx context.Context, in *TenantO
 // for forward compatibility.
 type OrganizationServiceServer interface {
 	// --- Global / Public Routes (Bypasses Org Check) ---
-	CreateOrganization(context.Context, *CreateOrganizationRequest) (*OrganizationResponse, error)
-	OnboardOrganization(context.Context, *CreateOrganizationRequest) (*OrganizationResponse, error)
+	CreateOrganization(context.Context, *CreateOrganizationRequest) (*CreateOrganizationResponse, error)
+	OnboardOrganization(context.Context, *CreateOrganizationRequest) (*CreateOrganizationResponse, error)
 	ListOrganizations(context.Context, *ListOrganizationsRequest) (*ListOrganizationsResponse, error)
 	// --- Organization Management ---
 	GetOrganizationById(context.Context, *TenantOrganizationIDRequest) (*OrganizationResponse, error)
@@ -211,10 +211,10 @@ type OrganizationServiceServer interface {
 // pointer dereference when methods are called.
 type UnimplementedOrganizationServiceServer struct{}
 
-func (UnimplementedOrganizationServiceServer) CreateOrganization(context.Context, *CreateOrganizationRequest) (*OrganizationResponse, error) {
+func (UnimplementedOrganizationServiceServer) CreateOrganization(context.Context, *CreateOrganizationRequest) (*CreateOrganizationResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "method CreateOrganization not implemented")
 }
-func (UnimplementedOrganizationServiceServer) OnboardOrganization(context.Context, *CreateOrganizationRequest) (*OrganizationResponse, error) {
+func (UnimplementedOrganizationServiceServer) OnboardOrganization(context.Context, *CreateOrganizationRequest) (*CreateOrganizationResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "method OnboardOrganization not implemented")
 }
 func (UnimplementedOrganizationServiceServer) ListOrganizations(context.Context, *ListOrganizationsRequest) (*ListOrganizationsResponse, error) {

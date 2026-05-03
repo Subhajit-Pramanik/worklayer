@@ -11,10 +11,10 @@ option go_package = "github.com/vyolayer/vyolayer/proto/tenant/v1;tenantV1";
 
 service OrganizationService {
   // --- Global / Public Routes (Bypasses Org Check) ---
-  rpc CreateOrganization(CreateOrganizationRequest) returns (OrganizationResponse) {
+  rpc CreateOrganization(CreateOrganizationRequest) returns (CreateOrganizationResponse) {
     option (tenant.v1.skip_org_check) = true;
   };
-  rpc OnboardOrganization(CreateOrganizationRequest) returns (OrganizationResponse) {
+  rpc OnboardOrganization(CreateOrganizationRequest) returns (CreateOrganizationResponse) {
     option (tenant.v1.skip_org_check) = true;
   };
   rpc ListOrganizations(ListOrganizationsRequest) returns (ListOrganizationsResponse) {
@@ -130,6 +130,12 @@ message ListOrganizationsResponse {
   repeated Organization organizations   = 1;
   int32                 total_count     = 2;
   string                next_page_token = 3;
+}
+
+message CreateOrganizationResponse {
+  Organization organization = 1;
+  repeated OrganizationMember members = 2;
+  string project_id = 3;
 }
 
 message OrganizationResponse {

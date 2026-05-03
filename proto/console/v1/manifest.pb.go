@@ -7,6 +7,7 @@
 package consolev1
 
 import (
+	_ "buf.build/gen/go/bufbuild/protovalidate/protocolbuffers/go/buf/validate"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
 	_ "google.golang.org/protobuf/types/known/emptypb"
@@ -22,6 +23,118 @@ const (
 	_ = protoimpl.EnforceVersion(protoimpl.MaxVersion - 20)
 )
 
+type InitializeProjectServiceRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	ProjectId     string                 `protobuf:"bytes,1,opt,name=project_id,json=projectId,proto3" json:"project_id,omitempty"`
+	Plan          string                 `protobuf:"bytes,2,opt,name=plan,proto3" json:"plan,omitempty"`
+	Config        map[string]string      `protobuf:"bytes,3,rep,name=config,proto3" json:"config,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
+	Metadata      map[string]string      `protobuf:"bytes,4,rep,name=metadata,proto3" json:"metadata,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *InitializeProjectServiceRequest) Reset() {
+	*x = InitializeProjectServiceRequest{}
+	mi := &file_console_v1_manifest_proto_msgTypes[0]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *InitializeProjectServiceRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*InitializeProjectServiceRequest) ProtoMessage() {}
+
+func (x *InitializeProjectServiceRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_console_v1_manifest_proto_msgTypes[0]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use InitializeProjectServiceRequest.ProtoReflect.Descriptor instead.
+func (*InitializeProjectServiceRequest) Descriptor() ([]byte, []int) {
+	return file_console_v1_manifest_proto_rawDescGZIP(), []int{0}
+}
+
+func (x *InitializeProjectServiceRequest) GetProjectId() string {
+	if x != nil {
+		return x.ProjectId
+	}
+	return ""
+}
+
+func (x *InitializeProjectServiceRequest) GetPlan() string {
+	if x != nil {
+		return x.Plan
+	}
+	return ""
+}
+
+func (x *InitializeProjectServiceRequest) GetConfig() map[string]string {
+	if x != nil {
+		return x.Config
+	}
+	return nil
+}
+
+func (x *InitializeProjectServiceRequest) GetMetadata() map[string]string {
+	if x != nil {
+		return x.Metadata
+	}
+	return nil
+}
+
+type InitializeProjectServiceResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Success       bool                   `protobuf:"varint,1,opt,name=success,proto3" json:"success,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *InitializeProjectServiceResponse) Reset() {
+	*x = InitializeProjectServiceResponse{}
+	mi := &file_console_v1_manifest_proto_msgTypes[1]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *InitializeProjectServiceResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*InitializeProjectServiceResponse) ProtoMessage() {}
+
+func (x *InitializeProjectServiceResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_console_v1_manifest_proto_msgTypes[1]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use InitializeProjectServiceResponse.ProtoReflect.Descriptor instead.
+func (*InitializeProjectServiceResponse) Descriptor() ([]byte, []int) {
+	return file_console_v1_manifest_proto_rawDescGZIP(), []int{1}
+}
+
+func (x *InitializeProjectServiceResponse) GetSuccess() bool {
+	if x != nil {
+		return x.Success
+	}
+	return false
+}
+
 type GetProjectServiceManifestRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	ProjectId     string                 `protobuf:"bytes,1,opt,name=project_id,json=projectId,proto3" json:"project_id,omitempty"`
@@ -32,7 +145,7 @@ type GetProjectServiceManifestRequest struct {
 
 func (x *GetProjectServiceManifestRequest) Reset() {
 	*x = GetProjectServiceManifestRequest{}
-	mi := &file_console_v1_manifest_proto_msgTypes[0]
+	mi := &file_console_v1_manifest_proto_msgTypes[2]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -44,7 +157,7 @@ func (x *GetProjectServiceManifestRequest) String() string {
 func (*GetProjectServiceManifestRequest) ProtoMessage() {}
 
 func (x *GetProjectServiceManifestRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_console_v1_manifest_proto_msgTypes[0]
+	mi := &file_console_v1_manifest_proto_msgTypes[2]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -57,7 +170,7 @@ func (x *GetProjectServiceManifestRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetProjectServiceManifestRequest.ProtoReflect.Descriptor instead.
 func (*GetProjectServiceManifestRequest) Descriptor() ([]byte, []int) {
-	return file_console_v1_manifest_proto_rawDescGZIP(), []int{0}
+	return file_console_v1_manifest_proto_rawDescGZIP(), []int{2}
 }
 
 func (x *GetProjectServiceManifestRequest) GetProjectId() string {
@@ -84,7 +197,7 @@ type GetProjectServiceManifestResponse struct {
 
 func (x *GetProjectServiceManifestResponse) Reset() {
 	*x = GetProjectServiceManifestResponse{}
-	mi := &file_console_v1_manifest_proto_msgTypes[1]
+	mi := &file_console_v1_manifest_proto_msgTypes[3]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -96,7 +209,7 @@ func (x *GetProjectServiceManifestResponse) String() string {
 func (*GetProjectServiceManifestResponse) ProtoMessage() {}
 
 func (x *GetProjectServiceManifestResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_console_v1_manifest_proto_msgTypes[1]
+	mi := &file_console_v1_manifest_proto_msgTypes[3]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -109,7 +222,7 @@ func (x *GetProjectServiceManifestResponse) ProtoReflect() protoreflect.Message 
 
 // Deprecated: Use GetProjectServiceManifestResponse.ProtoReflect.Descriptor instead.
 func (*GetProjectServiceManifestResponse) Descriptor() ([]byte, []int) {
-	return file_console_v1_manifest_proto_rawDescGZIP(), []int{1}
+	return file_console_v1_manifest_proto_rawDescGZIP(), []int{3}
 }
 
 func (x *GetProjectServiceManifestResponse) GetSuccess() bool {
@@ -141,7 +254,7 @@ type ManifestData struct {
 
 func (x *ManifestData) Reset() {
 	*x = ManifestData{}
-	mi := &file_console_v1_manifest_proto_msgTypes[2]
+	mi := &file_console_v1_manifest_proto_msgTypes[4]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -153,7 +266,7 @@ func (x *ManifestData) String() string {
 func (*ManifestData) ProtoMessage() {}
 
 func (x *ManifestData) ProtoReflect() protoreflect.Message {
-	mi := &file_console_v1_manifest_proto_msgTypes[2]
+	mi := &file_console_v1_manifest_proto_msgTypes[4]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -166,7 +279,7 @@ func (x *ManifestData) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ManifestData.ProtoReflect.Descriptor instead.
 func (*ManifestData) Descriptor() ([]byte, []int) {
-	return file_console_v1_manifest_proto_rawDescGZIP(), []int{2}
+	return file_console_v1_manifest_proto_rawDescGZIP(), []int{4}
 }
 
 func (x *ManifestData) GetKey() string {
@@ -233,7 +346,7 @@ type ResourceData struct {
 
 func (x *ResourceData) Reset() {
 	*x = ResourceData{}
-	mi := &file_console_v1_manifest_proto_msgTypes[3]
+	mi := &file_console_v1_manifest_proto_msgTypes[5]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -245,7 +358,7 @@ func (x *ResourceData) String() string {
 func (*ResourceData) ProtoMessage() {}
 
 func (x *ResourceData) ProtoReflect() protoreflect.Message {
-	mi := &file_console_v1_manifest_proto_msgTypes[3]
+	mi := &file_console_v1_manifest_proto_msgTypes[5]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -258,7 +371,7 @@ func (x *ResourceData) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ResourceData.ProtoReflect.Descriptor instead.
 func (*ResourceData) Descriptor() ([]byte, []int) {
-	return file_console_v1_manifest_proto_rawDescGZIP(), []int{3}
+	return file_console_v1_manifest_proto_rawDescGZIP(), []int{5}
 }
 
 func (x *ResourceData) GetKey() string {
@@ -323,7 +436,7 @@ type ColumnData struct {
 
 func (x *ColumnData) Reset() {
 	*x = ColumnData{}
-	mi := &file_console_v1_manifest_proto_msgTypes[4]
+	mi := &file_console_v1_manifest_proto_msgTypes[6]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -335,7 +448,7 @@ func (x *ColumnData) String() string {
 func (*ColumnData) ProtoMessage() {}
 
 func (x *ColumnData) ProtoReflect() protoreflect.Message {
-	mi := &file_console_v1_manifest_proto_msgTypes[4]
+	mi := &file_console_v1_manifest_proto_msgTypes[6]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -348,7 +461,7 @@ func (x *ColumnData) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ColumnData.ProtoReflect.Descriptor instead.
 func (*ColumnData) Descriptor() ([]byte, []int) {
-	return file_console_v1_manifest_proto_rawDescGZIP(), []int{4}
+	return file_console_v1_manifest_proto_rawDescGZIP(), []int{6}
 }
 
 func (x *ColumnData) GetKey() string {
@@ -399,7 +512,7 @@ type ActionData struct {
 
 func (x *ActionData) Reset() {
 	*x = ActionData{}
-	mi := &file_console_v1_manifest_proto_msgTypes[5]
+	mi := &file_console_v1_manifest_proto_msgTypes[7]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -411,7 +524,7 @@ func (x *ActionData) String() string {
 func (*ActionData) ProtoMessage() {}
 
 func (x *ActionData) ProtoReflect() protoreflect.Message {
-	mi := &file_console_v1_manifest_proto_msgTypes[5]
+	mi := &file_console_v1_manifest_proto_msgTypes[7]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -424,7 +537,7 @@ func (x *ActionData) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ActionData.ProtoReflect.Descriptor instead.
 func (*ActionData) Descriptor() ([]byte, []int) {
-	return file_console_v1_manifest_proto_rawDescGZIP(), []int{5}
+	return file_console_v1_manifest_proto_rawDescGZIP(), []int{7}
 }
 
 func (x *ActionData) GetKey() string {
@@ -473,7 +586,7 @@ type FilterData struct {
 
 func (x *FilterData) Reset() {
 	*x = FilterData{}
-	mi := &file_console_v1_manifest_proto_msgTypes[6]
+	mi := &file_console_v1_manifest_proto_msgTypes[8]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -485,7 +598,7 @@ func (x *FilterData) String() string {
 func (*FilterData) ProtoMessage() {}
 
 func (x *FilterData) ProtoReflect() protoreflect.Message {
-	mi := &file_console_v1_manifest_proto_msgTypes[6]
+	mi := &file_console_v1_manifest_proto_msgTypes[8]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -498,7 +611,7 @@ func (x *FilterData) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use FilterData.ProtoReflect.Descriptor instead.
 func (*FilterData) Descriptor() ([]byte, []int) {
-	return file_console_v1_manifest_proto_rawDescGZIP(), []int{6}
+	return file_console_v1_manifest_proto_rawDescGZIP(), []int{8}
 }
 
 func (x *FilterData) GetKey() string {
@@ -531,7 +644,7 @@ type ListProjectServicesRequest struct {
 
 func (x *ListProjectServicesRequest) Reset() {
 	*x = ListProjectServicesRequest{}
-	mi := &file_console_v1_manifest_proto_msgTypes[7]
+	mi := &file_console_v1_manifest_proto_msgTypes[9]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -543,7 +656,7 @@ func (x *ListProjectServicesRequest) String() string {
 func (*ListProjectServicesRequest) ProtoMessage() {}
 
 func (x *ListProjectServicesRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_console_v1_manifest_proto_msgTypes[7]
+	mi := &file_console_v1_manifest_proto_msgTypes[9]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -556,7 +669,7 @@ func (x *ListProjectServicesRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ListProjectServicesRequest.ProtoReflect.Descriptor instead.
 func (*ListProjectServicesRequest) Descriptor() ([]byte, []int) {
-	return file_console_v1_manifest_proto_rawDescGZIP(), []int{7}
+	return file_console_v1_manifest_proto_rawDescGZIP(), []int{9}
 }
 
 func (x *ListProjectServicesRequest) GetProjectId() string {
@@ -576,7 +689,7 @@ type ListProjectServicesResponse struct {
 
 func (x *ListProjectServicesResponse) Reset() {
 	*x = ListProjectServicesResponse{}
-	mi := &file_console_v1_manifest_proto_msgTypes[8]
+	mi := &file_console_v1_manifest_proto_msgTypes[10]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -588,7 +701,7 @@ func (x *ListProjectServicesResponse) String() string {
 func (*ListProjectServicesResponse) ProtoMessage() {}
 
 func (x *ListProjectServicesResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_console_v1_manifest_proto_msgTypes[8]
+	mi := &file_console_v1_manifest_proto_msgTypes[10]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -601,7 +714,7 @@ func (x *ListProjectServicesResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ListProjectServicesResponse.ProtoReflect.Descriptor instead.
 func (*ListProjectServicesResponse) Descriptor() ([]byte, []int) {
-	return file_console_v1_manifest_proto_rawDescGZIP(), []int{8}
+	return file_console_v1_manifest_proto_rawDescGZIP(), []int{10}
 }
 
 func (x *ListProjectServicesResponse) GetSuccess() bool {
@@ -632,7 +745,7 @@ type ProjectServiceData struct {
 
 func (x *ProjectServiceData) Reset() {
 	*x = ProjectServiceData{}
-	mi := &file_console_v1_manifest_proto_msgTypes[9]
+	mi := &file_console_v1_manifest_proto_msgTypes[11]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -644,7 +757,7 @@ func (x *ProjectServiceData) String() string {
 func (*ProjectServiceData) ProtoMessage() {}
 
 func (x *ProjectServiceData) ProtoReflect() protoreflect.Message {
-	mi := &file_console_v1_manifest_proto_msgTypes[9]
+	mi := &file_console_v1_manifest_proto_msgTypes[11]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -657,7 +770,7 @@ func (x *ProjectServiceData) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ProjectServiceData.ProtoReflect.Descriptor instead.
 func (*ProjectServiceData) Descriptor() ([]byte, []int) {
-	return file_console_v1_manifest_proto_rawDescGZIP(), []int{9}
+	return file_console_v1_manifest_proto_rawDescGZIP(), []int{11}
 }
 
 func (x *ProjectServiceData) GetKey() string {
@@ -707,11 +820,25 @@ var File_console_v1_manifest_proto protoreflect.FileDescriptor
 const file_console_v1_manifest_proto_rawDesc = "" +
 	"\n" +
 	"\x19console/v1/manifest.proto\x12\n" +
-	"console.v1\x1a\x1bgoogle/protobuf/empty.proto\"b\n" +
-	" GetProjectServiceManifestRequest\x12\x1d\n" +
+	"console.v1\x1a\x1bbuf/validate/validate.proto\x1a\x1bgoogle/protobuf/empty.proto\"\x86\x03\n" +
+	"\x1fInitializeProjectServiceRequest\x12&\n" +
 	"\n" +
-	"project_id\x18\x01 \x01(\tR\tprojectId\x12\x1f\n" +
-	"\vservice_key\x18\x02 \x01(\tR\n" +
+	"project_id\x18\x01 \x01(\tB\a\xbaH\x04r\x02\x10\x01R\tprojectId\x12\x1b\n" +
+	"\x04plan\x18\x02 \x01(\tB\a\xbaH\x04r\x02\x10\x01R\x04plan\x12O\n" +
+	"\x06config\x18\x03 \x03(\v27.console.v1.InitializeProjectServiceRequest.ConfigEntryR\x06config\x12U\n" +
+	"\bmetadata\x18\x04 \x03(\v29.console.v1.InitializeProjectServiceRequest.MetadataEntryR\bmetadata\x1a9\n" +
+	"\vConfigEntry\x12\x10\n" +
+	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
+	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\x1a;\n" +
+	"\rMetadataEntry\x12\x10\n" +
+	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
+	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\"<\n" +
+	" InitializeProjectServiceResponse\x12\x18\n" +
+	"\asuccess\x18\x01 \x01(\bR\asuccess\"t\n" +
+	" GetProjectServiceManifestRequest\x12&\n" +
+	"\n" +
+	"project_id\x18\x01 \x01(\tB\a\xbaH\x04r\x02\x10\x01R\tprojectId\x12(\n" +
+	"\vservice_key\x18\x02 \x01(\tB\a\xbaH\x04r\x02\x10\x01R\n" +
 	"serviceKey\"k\n" +
 	"!GetProjectServiceManifestResponse\x12\x18\n" +
 	"\asuccess\x18\x01 \x01(\bR\asuccess\x12,\n" +
@@ -763,10 +890,11 @@ const file_console_v1_manifest_proto_rawDesc = "" +
 	"\x06status\x18\x03 \x01(\tR\x06status\x12\x12\n" +
 	"\x04plan\x18\x04 \x01(\tR\x04plan\x12\x12\n" +
 	"\x04icon\x18\x05 \x01(\tR\x04icon\x12 \n" +
-	"\vdescription\x18\x06 \x01(\tR\vdescription2\xfa\x01\n" +
-	"\x16ProjectServiceManifest\x12x\n" +
+	"\vdescription\x18\x06 \x01(\tR\vdescription2\xf1\x02\n" +
+	"\x16ProjectServiceManifest\x12u\n" +
+	"\x18InitializeProjectService\x12+.console.v1.InitializeProjectServiceRequest\x1a,.console.v1.InitializeProjectServiceResponse\x12x\n" +
 	"\x19GetProjectServiceManifest\x12,.console.v1.GetProjectServiceManifestRequest\x1a-.console.v1.GetProjectServiceManifestResponse\x12f\n" +
-	"\x13ListProjectServices\x12&.console.v1.ListProjectServicesRequest\x1a'.console.v1.ListProjectServicesResponseB?Z=github.com/subho/vyolayer/VyoLayer/proto/console/v1;consolev1b\x06proto3"
+	"\x13ListProjectServices\x12&.console.v1.ListProjectServicesRequest\x1a'.console.v1.ListProjectServicesResponseB9Z7github.com/vyolayer/vyolayer/proto/console/v1;consolev1b\x06proto3"
 
 var (
 	file_console_v1_manifest_proto_rawDescOnce sync.Once
@@ -780,35 +908,43 @@ func file_console_v1_manifest_proto_rawDescGZIP() []byte {
 	return file_console_v1_manifest_proto_rawDescData
 }
 
-var file_console_v1_manifest_proto_msgTypes = make([]protoimpl.MessageInfo, 10)
+var file_console_v1_manifest_proto_msgTypes = make([]protoimpl.MessageInfo, 14)
 var file_console_v1_manifest_proto_goTypes = []any{
-	(*GetProjectServiceManifestRequest)(nil),  // 0: console.v1.GetProjectServiceManifestRequest
-	(*GetProjectServiceManifestResponse)(nil), // 1: console.v1.GetProjectServiceManifestResponse
-	(*ManifestData)(nil),                      // 2: console.v1.ManifestData
-	(*ResourceData)(nil),                      // 3: console.v1.ResourceData
-	(*ColumnData)(nil),                        // 4: console.v1.ColumnData
-	(*ActionData)(nil),                        // 5: console.v1.ActionData
-	(*FilterData)(nil),                        // 6: console.v1.FilterData
-	(*ListProjectServicesRequest)(nil),        // 7: console.v1.ListProjectServicesRequest
-	(*ListProjectServicesResponse)(nil),       // 8: console.v1.ListProjectServicesResponse
-	(*ProjectServiceData)(nil),                // 9: console.v1.ProjectServiceData
+	(*InitializeProjectServiceRequest)(nil),   // 0: console.v1.InitializeProjectServiceRequest
+	(*InitializeProjectServiceResponse)(nil),  // 1: console.v1.InitializeProjectServiceResponse
+	(*GetProjectServiceManifestRequest)(nil),  // 2: console.v1.GetProjectServiceManifestRequest
+	(*GetProjectServiceManifestResponse)(nil), // 3: console.v1.GetProjectServiceManifestResponse
+	(*ManifestData)(nil),                      // 4: console.v1.ManifestData
+	(*ResourceData)(nil),                      // 5: console.v1.ResourceData
+	(*ColumnData)(nil),                        // 6: console.v1.ColumnData
+	(*ActionData)(nil),                        // 7: console.v1.ActionData
+	(*FilterData)(nil),                        // 8: console.v1.FilterData
+	(*ListProjectServicesRequest)(nil),        // 9: console.v1.ListProjectServicesRequest
+	(*ListProjectServicesResponse)(nil),       // 10: console.v1.ListProjectServicesResponse
+	(*ProjectServiceData)(nil),                // 11: console.v1.ProjectServiceData
+	nil,                                       // 12: console.v1.InitializeProjectServiceRequest.ConfigEntry
+	nil,                                       // 13: console.v1.InitializeProjectServiceRequest.MetadataEntry
 }
 var file_console_v1_manifest_proto_depIdxs = []int32{
-	2, // 0: console.v1.GetProjectServiceManifestResponse.data:type_name -> console.v1.ManifestData
-	3, // 1: console.v1.ManifestData.resources:type_name -> console.v1.ResourceData
-	4, // 2: console.v1.ResourceData.columns:type_name -> console.v1.ColumnData
-	5, // 3: console.v1.ResourceData.actions:type_name -> console.v1.ActionData
-	6, // 4: console.v1.ResourceData.filters:type_name -> console.v1.FilterData
-	9, // 5: console.v1.ListProjectServicesResponse.data:type_name -> console.v1.ProjectServiceData
-	0, // 6: console.v1.ProjectServiceManifest.GetProjectServiceManifest:input_type -> console.v1.GetProjectServiceManifestRequest
-	7, // 7: console.v1.ProjectServiceManifest.ListProjectServices:input_type -> console.v1.ListProjectServicesRequest
-	1, // 8: console.v1.ProjectServiceManifest.GetProjectServiceManifest:output_type -> console.v1.GetProjectServiceManifestResponse
-	8, // 9: console.v1.ProjectServiceManifest.ListProjectServices:output_type -> console.v1.ListProjectServicesResponse
-	8, // [8:10] is the sub-list for method output_type
-	6, // [6:8] is the sub-list for method input_type
-	6, // [6:6] is the sub-list for extension type_name
-	6, // [6:6] is the sub-list for extension extendee
-	0, // [0:6] is the sub-list for field type_name
+	12, // 0: console.v1.InitializeProjectServiceRequest.config:type_name -> console.v1.InitializeProjectServiceRequest.ConfigEntry
+	13, // 1: console.v1.InitializeProjectServiceRequest.metadata:type_name -> console.v1.InitializeProjectServiceRequest.MetadataEntry
+	4,  // 2: console.v1.GetProjectServiceManifestResponse.data:type_name -> console.v1.ManifestData
+	5,  // 3: console.v1.ManifestData.resources:type_name -> console.v1.ResourceData
+	6,  // 4: console.v1.ResourceData.columns:type_name -> console.v1.ColumnData
+	7,  // 5: console.v1.ResourceData.actions:type_name -> console.v1.ActionData
+	8,  // 6: console.v1.ResourceData.filters:type_name -> console.v1.FilterData
+	11, // 7: console.v1.ListProjectServicesResponse.data:type_name -> console.v1.ProjectServiceData
+	0,  // 8: console.v1.ProjectServiceManifest.InitializeProjectService:input_type -> console.v1.InitializeProjectServiceRequest
+	2,  // 9: console.v1.ProjectServiceManifest.GetProjectServiceManifest:input_type -> console.v1.GetProjectServiceManifestRequest
+	9,  // 10: console.v1.ProjectServiceManifest.ListProjectServices:input_type -> console.v1.ListProjectServicesRequest
+	1,  // 11: console.v1.ProjectServiceManifest.InitializeProjectService:output_type -> console.v1.InitializeProjectServiceResponse
+	3,  // 12: console.v1.ProjectServiceManifest.GetProjectServiceManifest:output_type -> console.v1.GetProjectServiceManifestResponse
+	10, // 13: console.v1.ProjectServiceManifest.ListProjectServices:output_type -> console.v1.ListProjectServicesResponse
+	11, // [11:14] is the sub-list for method output_type
+	8,  // [8:11] is the sub-list for method input_type
+	8,  // [8:8] is the sub-list for extension type_name
+	8,  // [8:8] is the sub-list for extension extendee
+	0,  // [0:8] is the sub-list for field type_name
 }
 
 func init() { file_console_v1_manifest_proto_init() }
@@ -822,7 +958,7 @@ func file_console_v1_manifest_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_console_v1_manifest_proto_rawDesc), len(file_console_v1_manifest_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   10,
+			NumMessages:   14,
 			NumExtensions: 0,
 			NumServices:   1,
 		},
